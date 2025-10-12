@@ -286,7 +286,8 @@ git push origin main
 
 # 🎯 Sprint 3 Goal
 
-> A production-ready Study Buddy app where users can register, log in, manage assignments, track study sessions, and chat with an AI tutor — all synced to a cloud-hosted backend.
+> A production-ready Study Buddy app where users can register, log in, manage assignments, track study sessions, and chat with an AI tutor — all synced to a cloud-hosted backend. <
+
 | Feature                     | Owner  | What it does                                                                                             |
 | --------------------------- | ------ | -------------------------------------------------------------------------------------------------------- |
 | Grade Calculator            | Chisom | “What-if” final grade planner that computes scores needed on remaining work to hit a target final grade. |
