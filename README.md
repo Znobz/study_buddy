@@ -297,112 +297,112 @@ git push origin main
 | Focus Timer / Study Session | Zaineb | Study timer that pauses on app background and supports a short “break” mode; basic session stats.        |
 
 Files to Edit/Create (by Feature)
-Grade Calculator (Owner: Chisom)
+- Grade Calculator (Owner: Chisom)
 
-Frontend
+    - Frontend
 
-study_buddy_app/lib/screens/grade_calculator_screen.dart (new; screen UI)
+        - study_buddy_app/lib/screens/grade_calculator_screen.dart (new; screen UI)
 
-study_buddy_app/lib/services/grade_service.dart (new; pure grade math utilities)
+        - study_buddy_app/lib/services/grade_service.dart (new; pure grade math utilities)
 
-study_buddy_app/lib/routes.dart (add route and nav entry)
+        - study_buddy_app/lib/routes.dart (add route and nav entry)
 
-Backend
+    - Backend
 
-(none required for demo — client-side calc is fine)
+        - (none required for demo — client-side calc is fine)
 
-AI Study Helper (Owner: Julian)
+- AI Study Helper (Owner: Julian)
 
-Frontend
+    - Frontend
 
-study_buddy_app/lib/screens/ai_tutor_screen.dart (wire “Send” to API call)
+        - study_buddy_app/lib/screens/ai_tutor_screen.dart (wire “Send” to API call)
+        
+        - study_buddy_app/lib/services/api_service.dart (add postAIMessage(...))
+        
+        - study_buddy_app/lib/routes.dart (ensure route present)
 
-study_buddy_app/lib/services/api_service.dart (add postAIMessage(...))
+    - Backend
 
-study_buddy_app/lib/routes.dart (ensure route present)
+        - study_buddy_backend/src/controllers/aiController.js (implement reply handler)
+        
+        - study_buddy_backend/src/routes/aiRoutes.js (expose /api/ai)
+        
+        - study_buddy_backend/src/server.js (verify routes are mounted)
+        
+        - study_buddy_backend/.env (store AI key; do not commit secrets)
 
-Backend
+- Assignment Uploader (Owner: Jairo)
 
-study_buddy_backend/src/controllers/aiController.js (implement reply handler)
+    - Frontend
 
-study_buddy_backend/src/routes/aiRoutes.js (expose /api/ai)
+        - study_buddy_app/lib/screens/assignments_screen.dart (form + list + edit/delete)
+        
+        - study_buddy_app/lib/services/api_service.dart
 
-study_buddy_backend/src/server.js (verify routes are mounted)
+        - add getAssignments()
+        
+        - add createAssignment(payload)
+        
+        - add updateAssignment(id, payload)
+        
+        - add deleteAssignment(id)
 
-study_buddy_backend/.env (store AI key; do not commit secrets)
+    - Backend
+    
+        - study_buddy_backend/src/controllers/assignmentController.js (CRUD handlers)
+        
+        - study_buddy_backend/src/routes/assignmentRoutes.js (REST endpoints)
+        
+        - study_buddy_backend/src/config/db.js (DB connection check)
+    
+- Due-Date Notifications (Owner: Hanif)
 
-Assignment Uploader (Owner: Jairo)
+    - Frontend
 
-Frontend
+        - study_buddy_app/lib/services/notification_service.dart (new; schedule/cancel local notifications)
+    
+        - study_buddy_app/lib/screens/assignments_screen.dart (call schedule on create/update; cancel on delete)
+    
+        - study_buddy_app/lib/routes.dart (optional: add a settings page r)
 
-study_buddy_app/lib/screens/assignments_screen.dart (form + list + edit/delete)
+    - Platform permissions
 
-study_buddy_app/lib/services/api_service.dart
+        - Android: study_buddy_app/android/app/src/main/AndroidManifest.xml
+        
+        - iOS: study_buddy_app/ios/Runner/Info.plist
 
-add getAssignments()
+    - Backend
+    
+        - (none required for demo — local device scheduling only)
 
-add createAssignment(payload)
+- Focus Timer / Study Session (Owner: Zaineb)
 
-add updateAssignment(id, payload)
+    - Frontend
 
-add deleteAssignment(id)
+        - study_buddy_app/lib/screens/study_session_screen.dart (timer logic, pause on background, break mode)
+    
+        - study_buddy_app/lib/services/session_service.dart (new; optional local storage of session stats)
 
-Backend
+    - Backend
 
-study_buddy_backend/src/controllers/assignmentController.js (CRUD handlers)
+        - (optional) study_buddy_backend/src/controllers/sessionController.js (persist sessions)
+        
+        - (optional) study_buddy_backend/src/routes/sessionRoutes.js
 
-study_buddy_backend/src/routes/assignmentRoutes.js (REST endpoints)
+- Routing & Navigation (Frontend)
 
-study_buddy_backend/src/config/db.js (DB connection check)
+    - study_buddy_app/lib/routes.dart
 
-Due-Date Notifications (Owner: Hanif)
+    - add named routes for: GradeCalculatorScreen, StudySessionScreen (if missing).
 
-Frontend
+    - study_buddy_app/lib/screens/dashboard_screen.dart
 
-study_buddy_app/lib/services/notification_service.dart (new; schedule/cancel local notifications)
+    - add buttons/tiles linking to each feature.
 
-study_buddy_app/lib/screens/assignments_screen.dart (call schedule on create/update; cancel on delete)
+- Quick Implementation Notes
 
-study_buddy_app/lib/routes.dart (optional: add a settings page route)
-
-Platform permissions
-
-Android: study_buddy_app/android/app/src/main/AndroidManifest.xml
-
-iOS: study_buddy_app/ios/Runner/Info.plist
-
-Backend
-
-(none required for demo — local device scheduling only)
-
-Focus Timer / Study Session (Owner: Zaineb)
-
-Frontend
-
-study_buddy_app/lib/screens/study_session_screen.dart (timer logic, pause on background, break mode)
-
-study_buddy_app/lib/services/session_service.dart (new; optional local storage of session stats)
-
-Backend
-
-(optional) study_buddy_backend/src/controllers/sessionController.js (persist sessions)
-
-(optional) study_buddy_backend/src/routes/sessionRoutes.js
-
-Routing & Navigation (Frontend)
-
-study_buddy_app/lib/routes.dart
-
-add named routes for: GradeCalculatorScreen, StudySessionScreen (if missing).
-
-study_buddy_app/lib/screens/dashboard_screen.dart
-
-add buttons/tiles linking to each feature.
-
-Quick Implementation Notes
-
-Lead times for notifications (suggested defaults): 3 days, 24 hours, 2 hours before due time.
-
-AI errors/timeouts: show a simple retry + error banner on the chat screen.
-
-Grade math: put formulas in grade_service.dart as pure functions (easy to unit test later).
+    - Lead times for notifications (suggested defaults): 3 days, 24 hours, 2 hours before due time.
+    
+    - AI errors/timeouts: show a simple retry + error banner on the chat screen.
+    
+    - Grade math: put formulas in grade_service.dart as pure functions (easy to unit test later).
