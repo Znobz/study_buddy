@@ -287,3 +287,58 @@ git push origin main
 # 🎯 Sprint 3 Goal
 
 > A production-ready Study Buddy app where users can register, log in, manage assignments, track study sessions, and chat with an AI tutor — all synced to a cloud-hosted backend.
+| Feature                         | Owner      | What it does (for the demo)                                                                                                                              | Frontend files to edit/create                                                                                                                                                                                                                                                                                     | Backend files to edit/create                                                                                                                                                                                                                                  |
+| ------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Grade Calculator**            | **Chisom** | “What-if” planner: student sets a target final grade and sees the minimum scores needed on remaining items to hit it. Client-side math is fine for demo. | `study_buddy_app/lib/screens/grade_calculator_screen.dart` *(new)*<br>`study_buddy_app/lib/services/grade_service.dart` *(new, pure math utils)*<br>`study_buddy_app/lib/routes.dart` *(add route/nav entry)*                                                                                                     | *(none required for demo—pure client calc)*                                                                                                                                                                                                                   |
+| **AI Study Helper**             | **Julian** | Chat interface backed by the AI endpoint for study tips, explanations, and Q&A.                                                                          | `study_buddy_app/lib/screens/ai_tutor_screen.dart` *(wire to API)*<br>`study_buddy_app/lib/services/api_service.dart` *(add `postAIMessage(...)`)*<br>`study_buddy_app/lib/routes.dart` *(ensure route present)*                                                                                                  | `study_buddy_backend/src/controllers/aiController.js` *(implement handler)*<br>`study_buddy_backend/src/routes/aiRoutes.js` *(ensure route mounted)*<br>`study_buddy_backend/src/server.js` *(verify `/api/ai` use)*<br>`.env` *(AI key, no secrets in code)* |
+| **Assignment Uploader**         | **Jairo**  | Create/read/update/delete assignment records with metadata (course, due date, weight, notes) and optional file/link.                                     | `study_buddy_app/lib/screens/assignments_screen.dart` *(form + list)*<br>`study_buddy_app/lib/services/api_service.dart` *(add CRUD: `getAssignments`, `createAssignment`, `updateAssignment`, `deleteAssignment`)*                                                                                               | `study_buddy_backend/src/controllers/assignmentController.js` *(CRUD)*<br>`study_buddy_backend/src/routes/assignmentRoutes.js` *(REST routes)*<br>`study_buddy_backend/src/config/db.js` *(ensure connection)*                                                |
+| **Due-Date Notifications**      | **Hanif**  | Local notifications reminding users before due dates, driven by Assignment data. For demo, use device-local scheduling (no server cron needed).          | `study_buddy_app/lib/services/notification_service.dart` *(new: schedule/cancel)*<br>`study_buddy_app/lib/screens/assignments_screen.dart` *(schedule on create/update)*<br>`study_buddy_app/lib/routes.dart` *(if adding Settings route)*<br>Android/iOS perms (Android `AndroidManifest.xml`; iOS `Info.plist`) | *(none required for demo—local notifications)*                                                                                                                                                                                                                |
+| **Focus Timer / Study Session** | **Zaineb** | A study timer that pauses when app is backgrounded and supports short “break” sessions; basic session stats.                                             | `study_buddy_app/lib/screens/study_session_screen.dart` *(implement timer, pause on background, break mode)*<br>`study_buddy_app/lib/services/session_service.dart` *(new: local save of session stats; optional)*                                                                                                | *(optional)* `study_buddy_backend/src/controllers/sessionController.js` *(persist sessions)*<br>*(optional)* `study_buddy_backend/src/routes/sessionRoutes.js`                                                                                                |
+
+**Quick notes per feature (scope & hand-offs)**
+
+Grade Calculator (Chisom)
+
+Keep it client-only for speed. Put formulas in grade_service.dart (pure functions + unit tests later).
+
+Screen: inputs for current grades/weights + target; output a table of required scores.
+
+Update routes.dart to register GradeCalculatorScreen.
+
+AI Study Helper (Julian)
+
+Frontend calls api_service.postAIMessage(prompt) → Backend aiController.reply.
+
+Add basic error/timeout handling and a minimal prompt template.
+
+Confirm aiRoutes is mounted in server.js (e.g., /api/ai).
+
+Assignment Uploader (Jairo)
+
+Form + list on assignments_screen.dart; wire buttons to API methods in api_service.dart.
+
+Backend already has assignmentController/assignmentRoutes; finish the handlers (validate title, course, due date, weight).
+
+File upload is optional for demo—accept a link or skip file storage to stay quick.
+
+Due-Date Notifications (Hanif)
+
+Implement notification_service.dart using a Flutter notifications plugin; schedule alarms when an assignment is created/updated.
+
+Default lead times: 3 days, 24 hours, 2 hours before due time.
+
+No backend required for demo; just read the assignment’s due date from the frontend list.
+
+Focus Timer (Zaineb)
+
+Implement timer state + app lifecycle hooks (pause on background) in study_session_screen.dart.
+
+Optional: write simple local logs via session_service.dart; server persistence is nice-to-have only.
+
+**Routing reminder (frontend)**
+
+Make sure each new screen is reachable:
+
+Edit study_buddy_app/lib/routes.dart to add named routes for GradeCalculatorScreen (and others if missing).
+
+Add a link from dashboard_screen.dart to each feature (button/tile).
