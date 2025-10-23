@@ -50,3 +50,20 @@ export const login = async (req, res) => {
     res.status(500).json({ error: 'Login failed' });
   }
 };
+
+export const validateToken = async (req, res) => {
+  // This endpoint is protected by authMiddleware, so if we reach here, token is valid
+  try {
+    const sql = 'SELECT user_id, first_name, last_name, email FROM users WHERE user_id = ?';
+    const [results] = await db.execute(sql, [req.user.user_id]);
+    
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json({ valid: true, user: results[0] });
+  } catch (err) {
+    console.error('Token validation error:', err);
+    res.status(500).json({ error: 'Token validation failed' });
+  }
+};

@@ -23,6 +23,22 @@ class ApiService {
     await prefs.remove('authToken');
   }
 
+  // Validate if the stored token is still valid
+  static Future<bool> validateToken() async {
+    if (authToken == null) return false;
+    
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/api/auth/validate'),
+        headers: {'Authorization': 'Bearer $authToken'},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Token validation error: $e');
+      return false;
+    }
+  }
+
   Map<String, String> _headers({bool json = true}) {
     final headers = <String, String>{};
     if (json) headers['Content-Type'] = 'application/json';
