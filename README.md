@@ -140,6 +140,39 @@ CREATE TABLE study_materials (
     FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE SET NULL
 );
 
+-- Conversations table (AI Tutor Chat Sessions)
+CREATE TABLE conversations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    title VARCHAR(255) DEFAULT 'New Chat',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_archived BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Messages table (Individual messages within conversations)
+CREATE TABLE messages (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    conversation_id INT NOT NULL,
+    role ENUM('user', 'assistant') NOT NULL,
+    text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+);
+
+-- Attachments table (Files uploaded in conversations)
+CREATE TABLE attachments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    message_id INT NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    filepath VARCHAR(500) NOT NULL,
+    mimetype VARCHAR(100) DEFAULT NULL,
+    size INT DEFAULT NULL COMMENT 'file size in bytes',
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
+);
+
 SHOW TABLES;
 DESCRIBE users;
 SELECT * FROM users;
