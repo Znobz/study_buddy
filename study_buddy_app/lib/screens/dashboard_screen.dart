@@ -108,5 +108,10 @@ class _DashboardCard extends StatelessWidget {
 }
 
 extension on Color {
-  get shade900 => null;
+  Color get shade900 => Color.fromRGBO(
+    (red + (255 - red) * 0.9).round(),
+    (green + (255 - green) * 0.9).round(),
+    (blue + (255 - blue) * 0.9).round(),
+    opacity,
+  );
 }

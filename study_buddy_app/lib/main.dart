@@ -6,6 +6,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ApiService.loadAuthToken(); // keeps token between restarts
   
+  // Validate token before auto-login
+  if (ApiService.authToken != null) {
+    final isValid = await ApiService.validateToken();
+    if (!isValid) {
+      await ApiService.clearAuthToken(); // Clear invalid token
+    }
+  }
+  
   runApp(const MyApp());
 }
 

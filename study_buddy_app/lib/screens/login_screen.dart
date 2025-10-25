@@ -23,26 +23,33 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    final api = ApiService();
-    final data = await api.login(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
-    );
-
-    setState(() => _isLoading = false);
-
-    if (data != null && data['token'] != null) {
-      final user = data['user'];
-      final userId = user['user_id'];
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('✅ Welcome back, ${user['first_name']}!')),
+    try {
+      final api = ApiService();
+      final data = await api.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
 
-      // Navigate to dashboard or home
-      Navigator.pushReplacementNamed(context, '/dashboard', arguments: {'userId': userId});
-    } else {
-      setState(() => _errorMessage = 'Invalid email or password.');
+      setState(() => _isLoading = false);
+
+      if (data != null && data['token'] != null) {
+        final user = data['user'];
+        final userId = user['user_id'];
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('✅ Welcome back, ${user['first_name']}!')),
+        );
+
+        // Navigate to dashboard or home
+        Navigator.pushReplacementNamed(context, '/dashboard', arguments: {'userId': userId});
+      } else {
+        setState(() => _errorMessage = 'Invalid email or password.');
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Connection failed. Please check if the server is running and database is set up.';
+      });
     }
   }
 

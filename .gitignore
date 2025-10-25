@@ -1,0 +1,13 @@
+# backend
+study_buddy_backend/.env
+study_buddy_backend/node_modules/
+
+# DB (keep only the schema file)
+study_buddy_backend/db/**
+!study_buddy_backend/db/schema.sql
+
+# Flutter build noise
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
