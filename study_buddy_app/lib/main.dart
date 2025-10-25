@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'routes.dart'; // <--- THIS imports your AppRoutes class
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ApiService.loadAuthToken(); // keeps token between restarts
@@ -24,6 +23,7 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: AppRoutes.generateRoute, // <--- This is key
       initialRoute:
           ApiService.authToken != null ? '/dashboard' : '/', // auto-login if token exists
+          
     );
   }
 }

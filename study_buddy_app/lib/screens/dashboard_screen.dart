@@ -42,7 +42,7 @@ class DashboardScreen extends StatelessWidget {
               title: 'AI Tutor',
               icon: Icons.smart_toy,
               color: Colors.teal,
-              onTap: () => Navigator.pushNamed(context, '/ai', arguments: {'userId': userId}),
+              onTap: () => Navigator.pushNamed(context, '/ai-chats', arguments: {'userId': userId}), // Changed from '/ai' to '/ai-chats'
             ),
             _DashboardCard(
               title: 'Study Sessions',

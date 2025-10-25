@@ -3,6 +3,7 @@ import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/assignments_screen.dart';
 import 'screens/ai_tutor_screen.dart';
+import 'screens/chat_list_screen.dart';  // ← NEW IMPORT
 import 'screens/register_screen.dart';
 import 'screens/study_session_screen.dart';
 
@@ -17,10 +18,15 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const AssignmentsScreen());
       case '/study':
         return MaterialPageRoute(builder: (_) => const StudySessionScreen());
+      case '/ai-chats':  // ← NEW ROUTE (chat list)
+        return MaterialPageRoute(builder: (_) => const ChatListScreen());
       case '/ai':
         final args = settings.arguments as Map<String, dynamic>? ?? {};
         final userId = args['userId'] as int? ?? 1;
-        return MaterialPageRoute(builder: (_) => AiTutorScreen(userId: userId));
+        return MaterialPageRoute(
+          settings: settings, // ← ADD THIS LINE! This passes arguments through
+          builder: (_) => AiTutorScreen(userId: userId),
+        );
       case '/register':
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
       default:
@@ -32,5 +38,3 @@ class AppRoutes {
     }
   }
 }
-
-
