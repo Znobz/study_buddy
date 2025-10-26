@@ -33,6 +33,8 @@ export const getAssignments = async (req, res) => {
     const userId = getUserId(req);
     if (!userId) return res.status(400).json({ error: "userId missing" });
 
+    console.log('\n📥 GET /api/assignments - Fetching assignments for user:', userId);
+    
     const [rows] = await db.query(
       `SELECT assignment_id, course_id, user_id, title, description,
               DATE_FORMAT(due_date, "%Y-%m-%d") AS due_date,
@@ -42,9 +44,13 @@ export const getAssignments = async (req, res) => {
        ORDER BY (due_date IS NULL), due_date ASC, assignment_id DESC`,
       [userId]
     );
+    
+    console.log('📊 SQL: SELECT * FROM assignments WHERE user_id =', userId);
+    console.log(`✅ Found ${rows.length} assignments`);
+    
     res.json(rows);
   } catch (error) {
-    console.error("Error fetching assignments:", error);
+    console.error("❌ Error fetching assignments:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -61,6 +67,10 @@ export const addAssignment = async (req, res) => {
     const priority = pick(req.body, 'priority') ?? 'medium';
     const status = pick(req.body, 'status') ?? 'pending';
 
+    console.log('\n📝 POST /api/assignments - Adding new assignment');
+    console.log('📋 Title:', title);
+    console.log('👤 User ID:', userId);
+
     if (!userId || !title) {
       return res.status(400).json({ error: "userId and title are required" });
     }
@@ -73,11 +83,15 @@ export const addAssignment = async (req, res) => {
     // course_id NOT NULL in schema: use provided or fallback to General
     const cid = courseIdRaw ? Number(courseIdRaw) : await ensureDefaultCourse(Number(userId));
 
+    console.log('💾 SQL: INSERT INTO assignments ...');
+    
     const [ins] = await db.query(
       `INSERT INTO assignments (course_id, user_id, title, description, due_date, priority, status)
        VALUES (?,?,?,?,?,?,?)`,
       [cid, userId, String(title).trim(), String(description ?? '').trim(), due, priority, status]
     );
+    
+    console.log('✅ Assignment created with ID:', ins.insertId);
 
     const [rows] = await db.query(
       `SELECT assignment_id, course_id, user_id, title, description,
@@ -148,10 +162,17 @@ export const updateAssignment = async (req, res) => {
 export const deleteAssignment = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    console.log('\n🗑️ DELETE /api/assignments/' + id);
+    console.log('💾 SQL: DELETE FROM assignments WHERE assignment_id =', id);
+    
     await db.query("DELETE FROM assignments WHERE assignment_id=?", [id]);
+    
+    console.log('✅ Assignment deleted successfully');
+    
     res.json({ ok: true, deleted: Number(id) });
   } catch (error) {
-    console.error("Error deleting assignment:", error);
+    console.error("❌ Error deleting assignment:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
