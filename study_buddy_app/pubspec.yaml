@@ -110,6 +110,8 @@ dependencies:
 
   # Icons for iOS-style UI
   cupertino_icons: ^1.0.8
+  flutter_local_notifications: 17.2.2
+  timezone: 0.9.2
 
 # 🧰 Developer dependencies
 dev_dependencies:

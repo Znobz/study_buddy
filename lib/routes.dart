@@ -5,6 +5,7 @@ import 'screens/assignments_screen.dart';
 import 'screens/ai_tutor_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/study_session_screen.dart';
+import '../study_buddy_app/lib/class_grades_screen.dart';
 
 class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -23,6 +24,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => AiTutorScreen(userId: userId));
       case '/register':
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
+      case '/grades':
+        return MaterialPageRoute(builder: (_) => const ClassGradesScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => const Scaffold(
@@ -32,5 +35,3 @@ class AppRoutes {
     }
   }
 }
-
-
