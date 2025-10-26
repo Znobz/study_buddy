@@ -7,7 +7,6 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // If user info passed via route
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final userId = args?['userId'] ?? user?['user_id'] ?? 1;
     final firstName = args?['firstName'] ?? user?['first_name'] ?? 'User';
@@ -36,25 +35,52 @@ class DashboardScreen extends StatelessWidget {
               title: 'Assignments',
               icon: Icons.book,
               color: Colors.deepPurple,
-              onTap: () => Navigator.pushNamed(context, '/assignments', arguments: {'userId': userId}),
+              onTap: () => Navigator.pushNamed(
+                context,
+                '/assignments',
+                arguments: {'userId': userId},
+              ),
             ),
             _DashboardCard(
               title: 'AI Tutor',
               icon: Icons.smart_toy,
               color: Colors.teal,
-              onTap: () => Navigator.pushNamed(context, '/ai-chats', arguments: {'userId': userId}), // Changed from '/ai' to '/ai-chats'
+              onTap: () => Navigator.pushNamed(
+                context,
+                '/ai-chats',
+                arguments: {'userId': userId},
+              ),
             ),
             _DashboardCard(
               title: 'Study Sessions',
               icon: Icons.schedule,
               color: Colors.indigo,
-              onTap: () => Navigator.pushNamed(context, '/study', arguments: {'userId': userId}),
+              onTap: () => Navigator.pushNamed(
+                context,
+                '/study',
+                arguments: {'userId': userId},
+              ),
+            ),
+            // 🟣 NEW CLASS GRADES CARD
+            _DashboardCard(
+              title: 'Class Grades',
+              icon: Icons.school,
+              color: Colors.purple,
+              onTap: () => Navigator.pushNamed(
+                context,
+                '/grades',
+                arguments: {'userId': userId},
+              ),
             ),
             _DashboardCard(
               title: 'Profile',
               icon: Icons.person,
               color: Colors.orange,
-              onTap: () => Navigator.pushNamed(context, '/profile', arguments: {'userId': userId}),
+              onTap: () => Navigator.pushNamed(
+                context,
+                '/profile',
+                arguments: {'userId': userId},
+              ),
             ),
           ],
         ),
@@ -109,9 +135,9 @@ class _DashboardCard extends StatelessWidget {
 
 extension on Color {
   Color get shade900 => Color.fromRGBO(
-    (red + (255 - red) * 0.9).round(),
-    (green + (255 - green) * 0.9).round(),
-    (blue + (255 - blue) * 0.9).round(),
-    opacity,
-  );
+        (red + (255 - red) * 0.9).round(),
+        (green + (255 - green) * 0.9).round(),
+        (blue + (255 - blue) * 0.9).round(),
+        opacity,
+      );
 }

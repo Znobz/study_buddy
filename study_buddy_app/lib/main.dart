@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
-import 'routes.dart'; // <--- THIS imports your AppRoutes class
+import 'routes.dart';
+import 'package:study_buddy/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await ApiService.loadAuthToken(); // keeps token between restarts
-  
-  // Validate token before auto-login
-  if (ApiService.authToken != null) {
-    final isValid = await ApiService.validateToken();
-    if (!isValid) {
-      await ApiService.clearAuthToken(); // Clear invalid token
-    }
-  }
-  
+  await NotificationService.init(); // initialize notifications
+  await ApiService.loadAuthToken(); // load saved login token
+
   runApp(const MyApp());
 }
 
@@ -28,10 +22,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
-      onGenerateRoute: AppRoutes.generateRoute, // <--- This is key
+      onGenerateRoute: AppRoutes.generateRoute,
       initialRoute:
           ApiService.authToken != null ? '/dashboard' : '/', // auto-login if token exists
-          
     );
   }
 }

@@ -7,7 +7,6 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // If user info passed via route
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final userId = args?['userId'] ?? user?['user_id'] ?? 1;
     final firstName = args?['firstName'] ?? user?['first_name'] ?? 'User';
@@ -49,6 +48,13 @@ class DashboardScreen extends StatelessWidget {
               icon: Icons.schedule,
               color: Colors.indigo,
               onTap: () => Navigator.pushNamed(context, '/study', arguments: {'userId': userId}),
+            ),
+            // 👇👇 NEW CLASS GRADES CARD
+            _DashboardCard(
+              title: 'Class Grades',
+              icon: Icons.school,
+              color: Colors.purple,
+              onTap: () => Navigator.pushNamed(context, '/grades', arguments: {'userId': userId}),
             ),
             _DashboardCard(
               title: 'Profile',
@@ -97,7 +103,7 @@ class _DashboardCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: color.shade900,
+                color: color,
               ),
             ),
           ],
@@ -105,8 +111,4 @@ class _DashboardCard extends StatelessWidget {
       ),
     );
   }
-}
-
-extension on Color {
-  get shade900 => null;
 }

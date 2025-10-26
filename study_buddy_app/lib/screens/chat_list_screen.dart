@@ -185,9 +185,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       child: Card(
                         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         child: ListTile(
-                          leading: CircleAvatar(
+                          leading: const CircleAvatar(
                             backgroundColor: Colors.teal,
-                            child: const Icon(Icons.chat, color: Colors.white),
+                            child: Icon(Icons.chat, color: Colors.white),
                           ),
                           title: Text(
                             title,

@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/Users/abdulsalamfadare/Desktop/Study-buddy/study_buddy_app/linux"
+    "cmake.sourceDirectory": "/Users/abdulsalamfadare/Desktop/Study-buddy/study_buddy_app/linux",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
