@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String baseUrl = "http://10.0.2.2:3000/api";
+  final String baseUrl = "http://172.20.10.3:3000/api";
   static String? authToken;
 
   static Future<void> setAuthToken(String token) async {
@@ -30,7 +30,7 @@ class ApiService {
     
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/auth/validate'),
+        Uri.parse('http://172.20.10.3:3000/api/auth/validate'),
         headers: {'Authorization': 'Bearer $authToken'},
       );
       return response.statusCode == 200;

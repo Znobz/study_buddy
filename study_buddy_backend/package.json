@@ -13,6 +13,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
+    "multer": "^2.0.2",
     "mysql2": "^3.3.0",
     "openai": "^4.104.0"
   },

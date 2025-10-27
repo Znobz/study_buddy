@@ -123,7 +123,7 @@ class _DashboardCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: color.shade900,
+                color: Colors.black,
               ),
             ),
           ],

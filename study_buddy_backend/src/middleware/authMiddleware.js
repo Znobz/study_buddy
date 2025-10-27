@@ -12,3 +12,4 @@ export const verifyToken = (req, res, next) => {
     res.status(400).json({ error: 'Invalid token' });
   }
 };
+//allows us to protect routes by verifying users JWT tokens
