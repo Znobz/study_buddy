@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String baseUrl = "http://10.0.2.2:3000/api";
+  final String baseUrl = "http://172.20.10.3:3000/api";
   static String? authToken;
 
   static Future<void> setAuthToken(String token) async {
@@ -29,7 +30,7 @@ class ApiService {
     
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/auth/validate'),
+        Uri.parse('http://172.20.10.3:3000/api/auth/validate'),
         headers: {'Authorization': 'Bearer $authToken'},
       );
       return response.statusCode == 200;
@@ -237,37 +238,198 @@ class ApiService {
   }
 
   // Ask AI Tutor (protected endpoint)
-  Future<String?> askTutor(String question) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/ai/ask'),
-        headers: _headers(),
-        body: jsonEncode({'question': question}),
-      );
+  Future<int?> _getOrCreateLegacyChatId() async {
+  final prefs = await SharedPreferences.getInstance();
+  var cid = prefs.getInt('last_ai_conversation_id');
+  if (cid == null) {
+    final conv = await createChat(title: 'Legacy Chat');
+    if (conv == null) return null;
+    cid = conv['id'] as int;
+    await prefs.setInt('last_ai_conversation_id', cid);
+  }
+  return cid;
+  }
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['answer'];
-      } else {
-        print('AI error: ${response.statusCode} ${response.body}');
-        return null;
+  @Deprecated('Use sendChatMessage instead')
+Future<String?> askTutor(String question) async {
+  try {
+    final cid = await _getOrCreateLegacyChatId();
+    if (cid == null) return null;
+
+    // IMPORTANT: body must be Map<String, dynamic>
+    final res = await sendChatMessage(cid, question);
+    final asst = (res?['assistant'] as Map<String, dynamic>?);
+    return asst?['text'] as String?;
+  } catch (e) {
+    print('askTutor shim error: $e');
+    return null;
+  }
+}
+
+
+  // Get chat history for the currently authenticated user
+  @Deprecated('Use listChats / listChatMessages instead')
+  Future<List<dynamic>?> getChatHistory(int userId) async {
+    try {
+    final prefs = await SharedPreferences.getInstance();
+    final cid = prefs.getInt('last_ai_conversation_id');
+    if (cid == null) return <dynamic>[];
+
+    final page = await listChatMessages(cid, limit: 100);
+    final items = (page?['items'] as List? ?? []).cast<Map<String, dynamic>>();
+
+    // Convert to legacy shape your screen expected:
+    final List<Map<String, dynamic>> out = [];
+    final seq = items.reversed.toList(); // oldest-first
+
+    for (int i = 0; i < seq.length - 1; i++) {
+      final a = seq[i], b = seq[i + 1];
+      if (a['role'] == 'user' && b['role'] == 'assistant') {
+        out.add({
+          'chat_id': cid,
+          'user_id': userId,
+          'session_id': null,
+          'question': a['text'],
+          'ai_response': b['text'],
+          'timestamp': b['created_at'],
+        });
+        i++; // skip paired assistant
       }
+    }
+    return out;
+  } catch (e) {
+    print('getChatHistory shim error: $e');
+    return <dynamic>[];
+  }
+}
+
+  Future<Map<String, dynamic>?> createChat({String? title}) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/ai/chats'),
+        headers: _headers(),
+        body: jsonEncode({'title': title}),
+      );
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      }
+      print('createChat failed: ${res.statusCode} ${res.body}');
     } catch (e) {
-      print('Error calling AI Tutor: $e');
-      return null;
+      print('createChat error: $e');
+    }
+    return null;
+  }
+
+  Future<List<dynamic>?> listChats() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/ai/chats'),
+        headers: _headers(),
+      );
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return jsonDecode(res.body) as List<dynamic>;
+      }
+      print('listChats failed: ${res.statusCode} ${res.body}');
+    } catch (e) {
+      print('listChats error: $e');
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> listChatMessages(int chatId, {int limit = 30, String? cursor}) async {
+    try {
+      final qp = <String, String>{ 'limit': '$limit' };
+      if (cursor != null) qp['cursor'] = cursor;
+      final uri = Uri.parse('$baseUrl/ai/chats/$chatId/messages').replace(queryParameters: qp);
+
+      final res = await http.get(uri, headers: _headers());
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return jsonDecode(res.body) as Map<String, dynamic>; // { items: [...], next_cursor }
+      }
+      print('listChatMessages failed: ${res.statusCode} ${res.body}');
+    } catch (e) {
+      print('listChatMessages error: $e');
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> sendChatMessage(int chatId, String text, {List<int>? attachmentIds}) async {
+    try {
+      final Map<String, dynamic> body = {'text': text};
+      if (attachmentIds != null && attachmentIds.isNotEmpty) {
+        body['attachmentIds'] = attachmentIds;
+      }
+
+      print('🚀 Sending message to chatId: $chatId');
+      print('🚀 URL: $baseUrl/ai/chats/$chatId/messages');
+      print('🚀 Auth token present: ${authToken != null}');
+      print('🚀 Body: $body');
+
+      final res = await http.post(
+        Uri.parse('$baseUrl/ai/chats/$chatId/messages'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+      
+      print('🚀 Response status: ${res.statusCode}');
+      print('🚀 Response body: ${res.body}');
+      
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      }
+      print('sendChatMessage failed: ${res.statusCode} ${res.body}');
+    } catch (e) {
+      print('sendChatMessage error: $e');
+    }
+    return null;
+  }
+
+
+  Future<int?> uploadAttachment(File file) async {
+    try {
+      final req = http.MultipartRequest('POST', Uri.parse('$baseUrl/ai/uploads'));
+      if (authToken != null) req.headers['Authorization'] = 'Bearer $authToken';
+      req.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      final res = await req.send();
+      final body = await res.stream.bytesToString();
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final j = jsonDecode(body) as Map<String, dynamic>;
+        return j['attachmentId'] as int?;
+      }
+      print('uploadAttachment failed: ${res.statusCode} $body');
+    } catch (e) {
+      print('uploadAttachment error: $e');
+    }
+    return null;
+  }
+
+  Future<bool> autoTitleChat(int chatId) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/ai/chats/$chatId/title'),
+        headers: _headers(),
+        body: jsonEncode({}),
+      );
+      return res.statusCode >= 200 && res.statusCode < 300;
+    } catch (e) {
+      print('autoTitleChat error: $e');
+      return false;
     }
   }
 
-  // Get chat history for the currently authenticated user
-  Future<List<dynamic>?> getChatHistory(int userId) async {
+  Future<bool> archiveChat(int chatId, bool archived) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/ai/history/$userId'), headers: _headers());
-      if (response.statusCode == 200) return jsonDecode(response.body);
-      print('History fetch failed: ${response.statusCode} ${response.body}');
+      final res = await http.post(
+        Uri.parse('$baseUrl/ai/chats/$chatId/archive'),
+        headers: _headers(),
+        body: jsonEncode({'archived': archived}),
+      );
+      return res.statusCode >= 200 && res.statusCode < 300;
     } catch (e) {
-      print('Error fetching history: $e');
+      print('archiveChat error: $e');
+      return false;
     }
-    return null;
   }
 
 }
