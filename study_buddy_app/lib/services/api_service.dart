@@ -1,10 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String baseUrl = "http://172.20.10.3:3000/api";
+  ApiService()
+      : baseOrigin = Platform.isAndroid
+            ? "http://10.0.2.2:3000"
+            : "http://localhost:3000",
+        baseUrl = Platform.isAndroid
+            ? "http://10.0.2.2:3000/api"
+            : "http://localhost:3000/api";
+
+  final String baseOrigin;
+  final String baseUrl;
   static String? authToken;
 
   static Future<void> setAuthToken(String token) async {
@@ -16,6 +27,11 @@ class ApiService {
   static Future<void> loadAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     authToken = prefs.getString('authToken');
+    if (authToken != null) {
+      print('✅ Auth token loaded from storage: ${authToken!.substring(0, 20)}...');
+    } else {
+      print('⚠️ No auth token found in storage');
+    }
   }
 
   static Future<void> clearAuthToken() async {
@@ -29,8 +45,11 @@ class ApiService {
     if (authToken == null) return false;
     
     try {
+      final validateUrl = Platform.isAndroid 
+          ? "http://10.0.2.2:3000/api/auth/validate"
+          : "http://localhost:3000/api/auth/validate";
       final response = await http.get(
-        Uri.parse('http://172.20.10.3:3000/api/auth/validate'),
+        Uri.parse(validateUrl),
         headers: {'Authorization': 'Bearer $authToken'},
       );
       return response.statusCode == 200;
@@ -43,8 +62,44 @@ class ApiService {
   Map<String, String> _headers({bool json = true}) {
     final headers = <String, String>{};
     if (json) headers['Content-Type'] = 'application/json';
-    if (authToken != null) headers['Authorization'] = 'Bearer $authToken';
+    if (ApiService.authToken != null) {
+      headers['Authorization'] = 'Bearer ${ApiService.authToken}';
+      print('🔑 Using auth token: ${ApiService.authToken!.substring(0, 20)}...');
+    } else {
+      print('⚠️ No auth token available!');
+    }
     return headers;
+  }
+
+  String buildAttachmentUrl(String relativePath) {
+    final normalized = relativePath.startsWith('uploads/')
+        ? relativePath
+        : 'uploads/${relativePath.replaceFirst(RegExp(r'^/'), '')}';
+    final base = baseOrigin.endsWith('/')
+        ? baseOrigin.substring(0, baseOrigin.length - 1)
+        : baseOrigin;
+    return '$base/$normalized';
+  }
+
+  Future<http.MultipartFile> _multipartFromPlatformFile(
+    String fieldName,
+    PlatformFile file,
+  ) async {
+    if (file.path != null) {
+      return await http.MultipartFile.fromPath(
+        fieldName,
+        file.path!,
+        filename: file.name,
+      );
+    }
+    if (file.bytes != null) {
+      return http.MultipartFile.fromBytes(
+        fieldName,
+        file.bytes!,
+        filename: file.name,
+      );
+    }
+    throw ArgumentError('Selected file has no data');
   }
 
   Future<Map<String, dynamic>?> postRegister(
@@ -64,12 +119,18 @@ class ApiService {
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
-        print('Register failed: ${response.body}');
-        return null;
+        try {
+          final errorData = jsonDecode(response.body);
+          print('Register failed: ${errorData['error'] ?? response.body}');
+          return {'error': errorData['error'] ?? 'Registration failed'};
+        } catch (_) {
+          print('Register failed: ${response.body}');
+          return {'error': 'Registration failed'};
+        }
       }
     } catch (e) {
       print('Register error: $e');
-      return null;
+      return {'error': 'Connection failed. Please check if the server is running.'};
     }
   }
 
@@ -90,11 +151,18 @@ class ApiService {
         }
         return data;
       } else {
-        return null;
+        try {
+          final errorData = jsonDecode(response.body);
+          print('Login failed: ${errorData['error'] ?? response.body}');
+          return {'error': errorData['error'] ?? 'Login failed'};
+        } catch (_) {
+          print('Login failed: ${response.body}');
+          return {'error': 'Login failed'};
+        }
       }
     } catch (e) {
       print("Login error: $e");
-      return null;
+      return {'error': 'Connection failed. Please check if the server is running.'};
     }
   }
 
@@ -121,54 +189,184 @@ class ApiService {
   // 📚 ================= ASSIGNMENTS =================
   Future<List<dynamic>?> getAssignments() async {
     try {
+      final headers = _headers();
+      print('📥 Fetching assignments from: $baseUrl/assignments');
       final response = await http.get(
         Uri.parse('$baseUrl/assignments'),
-        headers: _headers(),
+        headers: headers,
       );
+      print('📥 Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
-        print('Assignments fetch failed: ${response.body}');
+        print('❌ Assignments fetch failed: ${response.statusCode} - ${response.body}');
+        if (response.statusCode == 401) {
+          print('⚠️ Unauthorized - token may be invalid or expired');
+        }
       }
     } catch (e) {
-      print('Error fetching assignments: $e');
+      print('❌ Error fetching assignments: $e');
     }
     return null;
   }
 
-  Future<bool> addAssignment(String title, String description, String dueDate) async {
+  Future<bool> addAssignment(
+    String title,
+    String description,
+    String dueDate, {
+    String priority = 'medium',
+    String status = 'pending',
+    PlatformFile? attachment,
+  }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/assignments'),
-        headers: _headers(),
-        body: jsonEncode({
+      if (attachment != null) {
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse('$baseUrl/assignments'),
+        );
+        request.headers.addAll(_headers(json: false));
+        request.fields.addAll({
           'title': title,
           'description': description,
           'due_date': dueDate,
-        }),
-      );
-      return response.statusCode == 200;
-    } catch (e) {
-      print('Error adding assignment: $e');
+          'priority': priority,
+          'status': status,
+        });
+        request.files.add(
+          await _multipartFromPlatformFile('attachment', attachment),
+        );
+
+        final response = await request.send().timeout(
+          const Duration(seconds: 15),
+          onTimeout: () {
+            throw TimeoutException('Request timed out');
+          },
+        );
+        final body = await response.stream.bytesToString();
+
+        if (response.statusCode == 201 || response.statusCode == 200) {
+          return true;
+        }
+        print('Add assignment failed: ${response.statusCode} - $body');
+        return false;
+      }
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/assignments'),
+            headers: _headers(),
+            body: jsonEncode({
+              'title': title,
+              'description': description,
+              'due_date': dueDate,
+              'priority': priority,
+              'status': status,
+            }),
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw TimeoutException('Request timed out');
+            },
+          );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      } else {
+        print('Add assignment failed: ${response.statusCode} - ${response.body}');
+        return false;
+      }
+    } catch (e, stackTrace) {
+      print('❌ Error adding assignment: $e');
+      print('❌ Stack trace: $stackTrace');
+      if (e is TimeoutException) {
+        print('⏱️ Request timed out');
+      } else if (e is SocketException) {
+        print('🌐 Network error - check connection');
+      } else if (e is HttpException) {
+        print('📡 HTTP error');
+      }
       return false;
     }
   }
 
-  Future<bool> updateAssignment(int id, String title, String description, String dueDate, String status) async {
+  Future<bool> updateAssignment(
+    int id,
+    String title,
+    String description,
+    String dueDate, {
+    String? priority,
+    String status = 'pending',
+    PlatformFile? attachment,
+  }) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/assignments/$id'),
-        headers: _headers(),
-        body: jsonEncode({
+      print('📝 Updating assignment: $id (Priority: ${priority ?? 'unchanged'})');
+
+      if (attachment != null) {
+        final request = http.MultipartRequest(
+          'PUT',
+          Uri.parse('$baseUrl/assignments/$id'),
+        );
+        request.headers.addAll(_headers(json: false));
+        request.fields.addAll({
           'title': title,
           'description': description,
           'due_date': dueDate,
           'status': status,
-        }),
-      );
-      return response.statusCode == 200;
+        });
+        if (priority != null) {
+          request.fields['priority'] = priority;
+        }
+        request.files.add(
+          await _multipartFromPlatformFile('attachment', attachment),
+        );
+
+        final response = await request.send().timeout(
+          const Duration(seconds: 15),
+          onTimeout: () {
+            throw TimeoutException('Request timed out');
+          },
+        );
+        final body = await response.stream.bytesToString();
+
+        if (response.statusCode == 200) {
+          return true;
+        }
+        print('❌ Update assignment failed: ${response.statusCode} - $body');
+        return false;
+      }
+
+      final body = <String, dynamic>{
+        'title': title,
+        'description': description,
+        'due_date': dueDate,
+      };
+      if (priority != null) body['priority'] = priority;
+      body['status'] = status;
+
+      final response = await http
+          .put(
+            Uri.parse('$baseUrl/assignments/$id'),
+            headers: _headers(),
+            body: jsonEncode(body),
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              print('❌ Update assignment timed out after 10 seconds');
+              throw TimeoutException('Request timed out');
+            },
+          );
+
+      print('📝 Response status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('❌ Update assignment failed: ${response.statusCode} - ${response.body}');
+        return false;
+      }
     } catch (e) {
-      print('Error updating assignment: $e');
+      print('❌ Error updating assignment: $e');
       return false;
     }
   }
@@ -305,17 +503,29 @@ Future<String?> askTutor(String question) async {
 
   Future<Map<String, dynamic>?> createChat({String? title}) async {
     try {
+      final headers = _headers();
+      print('💬 Creating chat: $title');
       final res = await http.post(
         Uri.parse('$baseUrl/ai/chats'),
-        headers: _headers(),
+        headers: headers,
         body: jsonEncode({'title': title}),
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('❌ createChat timed out after 10 seconds');
+          throw TimeoutException('Request timed out');
+        },
       );
+      print('💬 Response status: ${res.statusCode}');
       if (res.statusCode >= 200 && res.statusCode < 300) {
         return jsonDecode(res.body) as Map<String, dynamic>;
       }
-      print('createChat failed: ${res.statusCode} ${res.body}');
+      print('❌ createChat failed: ${res.statusCode} ${res.body}');
+      if (res.statusCode == 401) {
+        print('⚠️ Unauthorized - token may be invalid or expired');
+      }
     } catch (e) {
-      print('createChat error: $e');
+      print('❌ createChat error: $e');
     }
     return null;
   }
@@ -342,7 +552,13 @@ Future<String?> askTutor(String question) async {
       if (cursor != null) qp['cursor'] = cursor;
       final uri = Uri.parse('$baseUrl/ai/chats/$chatId/messages').replace(queryParameters: qp);
 
-      final res = await http.get(uri, headers: _headers());
+      final res = await http.get(uri, headers: _headers()).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('❌ listChatMessages timed out after 10 seconds');
+          throw TimeoutException('Request timed out');
+        },
+      );
       if (res.statusCode >= 200 && res.statusCode < 300) {
         return jsonDecode(res.body) as Map<String, dynamic>; // { items: [...], next_cursor }
       }
@@ -362,13 +578,19 @@ Future<String?> askTutor(String question) async {
 
       print('🚀 Sending message to chatId: $chatId');
       print('🚀 URL: $baseUrl/ai/chats/$chatId/messages');
-      print('🚀 Auth token present: ${authToken != null}');
+      print('🚀 Auth token present: ${ApiService.authToken != null}');
       print('🚀 Body: $body');
 
       final res = await http.post(
         Uri.parse('$baseUrl/ai/chats/$chatId/messages'),
         headers: _headers(),
         body: jsonEncode(body),
+      ).timeout(
+        const Duration(seconds: 30), // Longer timeout for AI responses
+        onTimeout: () {
+          print('❌ sendChatMessage timed out after 30 seconds');
+          throw TimeoutException('Request timed out');
+        },
       );
       
       print('🚀 Response status: ${res.statusCode}');
@@ -388,7 +610,9 @@ Future<String?> askTutor(String question) async {
   Future<int?> uploadAttachment(File file) async {
     try {
       final req = http.MultipartRequest('POST', Uri.parse('$baseUrl/ai/uploads'));
-      if (authToken != null) req.headers['Authorization'] = 'Bearer $authToken';
+      if (ApiService.authToken != null) {
+        req.headers['Authorization'] = 'Bearer ${ApiService.authToken}';
+      }
       req.files.add(await http.MultipartFile.fromPath('file', file.path));
 
       final res = await req.send();

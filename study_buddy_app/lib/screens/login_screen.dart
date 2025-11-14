@@ -32,16 +32,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
       setState(() => _isLoading = false);
 
-      if (data != null && data['token'] != null) {
-        final user = data['user'];
-        final userId = user['user_id'];
+      if (data != null) {
+        if (data['error'] != null) {
+          setState(() => _errorMessage = data['error']);
+        } else if (data['token'] != null) {
+          final user = data['user'];
+          final userId = user['user_id'];
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('✅ Welcome back, ${user['first_name']}!')),
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('✅ Welcome back, ${user['first_name']}!')),
+          );
 
-        // Navigate to dashboard or home
-        Navigator.pushReplacementNamed(context, '/dashboard', arguments: {'userId': userId});
+          // Navigate to dashboard or home
+          Navigator.pushReplacementNamed(context, '/dashboard', arguments: {'userId': userId});
+        } else {
+          setState(() => _errorMessage = 'Invalid email or password.');
+        }
       } else {
         setState(() => _errorMessage = 'Invalid email or password.');
       }

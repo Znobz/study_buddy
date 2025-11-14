@@ -30,11 +30,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => _isLoading = false);
 
-    if (response != null && response['message'] != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('✅ ${response['message']}')),
-      );
-      Navigator.pop(context); // go back to login screen
+    if (response != null) {
+      if (response['error'] != null) {
+        setState(() => _errorMessage = response['error']);
+      } else if (response['message'] != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('✅ ${response['message']}')),
+        );
+        Navigator.pop(context); // go back to login screen
+      } else {
+        setState(() => _errorMessage = 'Registration failed. Try again.');
+      }
     } else {
       setState(() => _errorMessage = 'Registration failed. Try again.');
     }

@@ -96,8 +96,16 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     } catch (e) {
       print('❌ _loadHistory error: $e');
       if (mounted) {
+        String errorMsg = 'Failed to load chat';
+        if (e.toString().contains('timeout') || e.toString().contains('TimeoutException')) {
+          errorMsg = 'Connection timeout. Please check if the server is running.';
+        } else if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
+          errorMsg = 'Cannot connect to server. Please check your connection.';
+        } else {
+          errorMsg = 'Failed to load chat: ${e.toString()}';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load chat: $e')),
+          SnackBar(content: Text(errorMsg), duration: const Duration(seconds: 5)),
         );
       }
     } finally {
@@ -180,8 +188,16 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       print('❌ Send message error: $e');
       setState(() => _messages.removeWhere((m) => m['_tmp'] == true));
       if (mounted) {
+        String errorMsg = 'Send failed';
+        if (e.toString().contains('timeout') || e.toString().contains('TimeoutException')) {
+          errorMsg = 'Request timed out. The AI may be taking too long to respond.';
+        } else if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
+          errorMsg = 'Cannot connect to server. Please check your connection.';
+        } else {
+          errorMsg = 'Send failed: ${e.toString()}';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Send failed: $e')),
+          SnackBar(content: Text(errorMsg), duration: const Duration(seconds: 5)),
         );
       }
     } finally {
