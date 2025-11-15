@@ -59,10 +59,10 @@ class ClassGrade
     // given the grade you want for the class, this calculates the greade you want for a particular
     // assignment type to pass the class
     calcPredGrade(desired_grade, assignType) {
-        type_sum = 0;
-        type_len = this.courseDict[assignType].grades.length + 1; // includes grade value we are trying to find
-        type_w = this.courseDict[type].weight;
-        tempAve = 0;
+        let type_sum = 0;
+        let type_len = this.courseDict[assignType].grades.length + 1; // includes grade value we are trying to find
+        let type_w = this.courseDict[assignType].weight;
+        let tempAve = 0;
         // calculating current average except of the desired assignment type
         for (let type in this.courseDict) {
             if (type != assignType) {
@@ -74,7 +74,7 @@ class ClassGrade
             type_sum += grade.grade;
         });
         // return result of the assignment grade to obtain the value
-        return (type_len / type_w)(desired_grade - tempAve) - type_sum;
+        return ((desired_grade - tempAve) / type_w) * type_len - type_sum;
     }
 
     displayResults() {
