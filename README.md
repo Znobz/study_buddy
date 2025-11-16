@@ -581,48 +581,12 @@ npm install
 
 ---
 
-## ⚠️ Known Limitations
-
-> **Note:** These are planned improvements for future releases.
-
-- [ ] No pagination UI (endpoint exists but not used)
-- [ ] No message editing
-- [ ] No message deletion (only archive entire chats)
-- [ ] Android emulator only (iOS needs URL adjustments)
-- [ ] No rate limiting on backend
-- [ ] No automatic token refresh
-- [ ] No offline mode
-- [ ] No push notifications
-
----
-
-## 🔮 Roadmap
-
-### Version 1.1 (Next Release)
-- [ ] Message pagination UI
-- [ ] Dark mode
-- [ ] Export chat as PDF/Markdown
-- [ ] Code syntax highlighting in messages
-
-### Version 1.2 (Future)
-- [ ] Voice input/output
-- [ ] PDF document upload and analysis
-- [ ] Share chat via link
-- [ ] Multi-language support
-
-### Version 2.0 (Long-term)
-- [ ] Streaming responses (real-time typing effect)
-- [ ] Push notifications
-- [ ] Offline mode with sync
-- [ ] Multi-model support (GPT-4, Claude, Gemini)
-
----
 
 ## 👥 Team
 
 | Role | Name |
 |------|------|
-| Lead Developer | Jimmy |
+| Lead Developer | Julian |
 | Project Type | Team Project - Study Buddy |
 
 ---
