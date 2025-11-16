@@ -1,45 +1,96 @@
-📚 Study Buddy - AI Assistant ModuleA Flutter mobile app with an intelligent AI tutor powered by OpenAI GPT-4o-mini, featuring multi-modal conversations, web research, and image analysis.✨ Features🤖 AI Chat
+# Study Buddy - AI Assistant Module
 
-Multi-conversation support - Create and manage multiple chat sessions
-Persistent chat history - All conversations saved to MySQL database
-Auto-generated titles - AI automatically names your chats based on content
-Manual title editing - Rename chats anytime with tap-to-edit
-🖼️ Image Understanding
+> 🤖 An intelligent AI tutor powered by OpenAI GPT-4o-mini, featuring multi-modal conversations, web research, and image analysis.
 
-Multiple image upload - Send multiple images in a single message
-Image analysis - AI can describe, analyze, and answer questions about images
-Thumbnail preview - See uploaded images before sending
-Full-screen zoom - Tap images to view in full screen with pinch-to-zoom
-🔬 Research Mode
+[![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue.svg)](https://flutter.dev)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://www.mysql.com)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Web search integration - AI searches the web using Tavily API
-Source citations - Every researched answer includes clickable sources
-Real-time information - Get current data beyond AI's knowledge cutoff
-💅 Modern UI/UX
+---
 
-Markdown formatting - Rich text with bold, italic, lists, code blocks
-Optimistic updates - Instant UI feedback while waiting for server
-Swipe to delete - Delete chats with confirmation dialog
-Loading states - Clear indicators for ongoing operations
-Error handling - Graceful fallbacks with user-friendly messages
-🛠️ Tech StackFrontend
+## 📋 Table of Contents
 
-Flutter/Dart - Cross-platform mobile framework
-http - API communication
-shared_preferences - Local token storage
-file_picker - Image/file selection
-url_launcher - Open research sources in browser
-flutter_markdown - Rich text rendering
-http_parser - MIME type handling for uploads
-Backend
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Setup Instructions](#-setup-instructions)
+- [API Endpoints](#-api-endpoints)
+- [Usage Guide](#-usage-guide)
+- [Database Schema](#-database-schema)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
 
-Node.js + Express - REST API server
-MySQL - Relational database (mysql2/promise)
-OpenAI API - GPT-4o-mini for AI responses
-Tavily API - Web search for research mode
-JWT - Authentication tokens
-Multer - Multipart file uploads
-📁 Project Structurestudy_buddy/
+---
+
+## ✨ Features
+
+### 🤖 AI Chat
+- ✅ **Multi-conversation support** - Create and manage multiple chat sessions
+- ✅ **Persistent chat history** - All conversations saved to MySQL database
+- ✅ **Auto-generated titles** - AI automatically names your chats based on content
+- ✅ **Manual title editing** - Rename chats anytime with tap-to-edit
+
+### 🖼️ Image Understanding
+- ✅ **Multiple image upload** - Send multiple images in a single message
+- ✅ **Image analysis** - AI can describe, analyze, and answer questions about images
+- ✅ **Thumbnail preview** - See uploaded images before sending
+- ✅ **Full-screen zoom** - Tap images to view in full screen with pinch-to-zoom
+
+### 🔬 Research Mode
+- ✅ **Web search integration** - AI searches the web using Tavily API
+- ✅ **Source citations** - Every researched answer includes clickable sources
+- ✅ **Real-time information** - Get current data beyond AI's knowledge cutoff
+
+### 💅 Modern UI/UX
+- ✅ **Markdown formatting** - Rich text with **bold**, *italic*, lists, `code blocks`
+- ✅ **Optimistic updates** - Instant UI feedback while waiting for server
+- ✅ **Swipe to delete** - Delete chats with confirmation dialog
+- ✅ **Loading states** - Clear indicators for ongoing operations
+- ✅ **Error handling** - Graceful fallbacks with user-friendly messages
+
+---
+
+## 🛠️ Tech Stack
+
+<table>
+<tr>
+<td width="50%">
+
+### Frontend
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
+
+- `http` - API communication
+- `shared_preferences` - Local token storage
+- `file_picker` - Image/file selection
+- `url_launcher` - Open research sources
+- `flutter_markdown` - Rich text rendering
+- `http_parser` - MIME type handling
+
+</td>
+<td width="50%">
+
+### Backend
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+
+- `express` - REST API server
+- `mysql2` - Database connection
+- `openai` - GPT-4o-mini integration
+- `jsonwebtoken` - Authentication
+- `multer` - File upload handling
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📁 Project Structure
+```
+study_buddy/
 ├── frontend/ (Flutter)
 │   ├── lib/
 │   │   ├── screens/
@@ -61,169 +112,453 @@ Multer - Multipart file uploads
     │   │   └── aiRoutes.js              # API route definitions
     │   └── middleware/
     │       └── authMiddleware.js        # JWT verification
-    └── package.json🚀 Setup InstructionsPrerequisites
+    └── package.json
+```
 
-Flutter SDK (3.0+)
-Node.js (18+)
-MySQL (8.0+)
-OpenAI API key
-Tavily API key (for research mode)
-Backend Setup
-Navigate to backend directory:
+---
 
-bash   cd study_buddy_backend
-Install dependencies:
+## 🚀 Setup Instructions
 
-bash   npm install
-Create .env file:
+### Prerequisites
 
-env   PORT=3000
-   DB_HOST=localhost
-   DB_USER=your_mysql_user
-   DB_PASSWORD=your_mysql_password
-   DB_NAME=study_buddy
-   JWT_SECRET=your_jwt_secret_key
-   OPENAI_API_KEY=sk-...
-   TAVILY_API_KEY=tvly-...
-Set up MySQL database:
+- [Flutter SDK](https://flutter.dev/docs/get-started/install) (3.0+)
+- [Node.js](https://nodejs.org/) (18+)
+- [MySQL](https://www.mysql.com/downloads/) (8.0+)
+- [OpenAI API Key](https://platform.openai.com/api-keys)
+- [Tavily API Key](https://tavily.com/) (for research mode)
 
-sql   CREATE DATABASE study_buddy;
-   USE study_buddy;
+<details>
+<summary><b>📦 Backend Setup</b></summary>
 
-   CREATE TABLE conversations (
-     id INT PRIMARY KEY AUTO_INCREMENT,
-     user_id INT NOT NULL,
-     title VARCHAR(255) DEFAULT 'New Chat',
-     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-     is_archived BOOLEAN DEFAULT FALSE
-   );
+### 1. Navigate to backend directory
+```bash
+cd study_buddy_backend
+```
 
-   CREATE TABLE messages (
-     id INT PRIMARY KEY AUTO_INCREMENT,
-     conversation_id INT NOT NULL,
-     role ENUM('user', 'assistant') NOT NULL,
-     text TEXT,
-     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-     attachment_ids JSON,
-     FOREIGN KEY (conversation_id) REFERENCES conversations(id)
-   );
+### 2. Install dependencies
+```bash
+npm install
+```
 
-   CREATE TABLE attachments (
-     id INT PRIMARY KEY AUTO_INCREMENT,
-     conversation_id INT NOT NULL,
-     file_path VARCHAR(500) NOT NULL,
-     file_name VARCHAR(255) NOT NULL,
-     mime_type VARCHAR(100),
-     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-     FOREIGN KEY (conversation_id) REFERENCES conversations(id)
-   );
-Start the server:
+### 3. Create `.env` file
+```env
+PORT=3000
+DB_HOST=localhost
+DB_USER=your_mysql_user
+DB_PASSWORD=your_mysql_password
+DB_NAME=study_buddy
+JWT_SECRET=your_jwt_secret_key
+OPENAI_API_KEY=sk-...
+TAVILY_API_KEY=tvly-...
+```
 
-bash   npm start
-Server runs on http://localhost:3000Frontend Setup
-Navigate to frontend directory:
+### 4. Set up MySQL database
+```sql
+CREATE DATABASE study_buddy;
+USE study_buddy;
 
-bash   cd study_buddy_app
-Install dependencies:
+CREATE TABLE conversations (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  title VARCHAR(255) DEFAULT 'New Chat',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  is_archived BOOLEAN DEFAULT FALSE
+);
 
-bash   flutter pub get
-Update base URL (if needed):
-In lib/services/api_service.dart:
+CREATE TABLE messages (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  conversation_id INT NOT NULL,
+  role ENUM('user', 'assistant') NOT NULL,
+  text TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  attachment_ids JSON,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id)
+);
 
-dart   final String baseUrl = "http://10.0.2.2:3000/api";  // Android emulator
-   // OR
-   final String baseUrl = "http://localhost:3000/api";  // iOS simulator
-Run the app:
+CREATE TABLE attachments (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  conversation_id INT NOT NULL,
+  file_path VARCHAR(500) NOT NULL,
+  file_name VARCHAR(255) NOT NULL,
+  mime_type VARCHAR(100),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id)
+);
+```
 
-bash   flutter run🔌 API EndpointsConversations
-MethodEndpointDescriptionPOST/api/ai/chatsCreate new chatGET/api/ai/chatsList user's chatsGET/api/ai/chats/:idGet chat detailsPOST/api/ai/chats/:id/archiveArchive/delete chatPOST/api/ai/chats/:id/titleAuto-generate or set titleMessages
-MethodEndpointDescriptionGET/api/ai/chats/:id/messagesGet chat messagesPOST/api/ai/chats/:id/messagesSend message (text/images)Uploads
-MethodEndpointDescriptionPOST/api/ai/uploadsUpload image/fileGET/api/ai/uploads/:idRetrieve attachmentDELETE/api/ai/uploads/:idDelete attachment📖 UsageCreating a Chat
+### 5. Start the server
+```bash
+npm start
+```
 
-Tap the + button (FAB or AppBar)
-Chat appears immediately with "New Chat" title
-Start sending messages
-Sending a Message
+✅ Server runs on `http://localhost:3000`
 
-Type your question in the text field
-(Optional) Tap 📎 to attach images
-Tap Send button
-AI responds with formatted text
-Using Research Mode
+</details>
 
-Tap the 🔬 science icon in the AppBar
-Icon turns yellow when enabled
-Ask questions requiring current information
-AI searches the web and provides sources
-Uploading Images
+<details>
+<summary><b>📱 Frontend Setup</b></summary>
 
-Tap the 📎 attachment icon
-Select one or multiple images
-Preview appears below text field
-Tap X to remove individual images
-Send with or without text
-Editing Chat Title
+### 1. Navigate to frontend directory
+```bash
+cd study_buddy_app
+```
 
-Tap the chat title in the AppBar
-Enter new title in dialog
-Tap Save
-🗄️ Database Schemaconversations Table
-sqlid              INT (PK, AUTO_INCREMENT)
-user_id         INT (FK)
-title           VARCHAR(255)
-created_at      DATETIME
-updated_at      DATETIME
-is_archived     BOOLEANmessages Table
-sqlid              INT (PK, AUTO_INCREMENT)
-conversation_id INT (FK)
-role            ENUM('user', 'assistant')
-text            TEXT
-created_at      DATETIME
-attachment_ids  JSONattachments Table
-sqlid              INT (PK, AUTO_INCREMENT)
-conversation_id INT (FK)
-file_path       VARCHAR(500)
-file_name       VARCHAR(255)
-mime_type       VARCHAR(100)
-created_at      DATETIME🔑 Key Implementation DetailsAuthentication
+### 2. Install dependencies
+```bash
+flutter pub get
+```
 
-JWT tokens stored in SharedPreferences
-Token sent in Authorization: Bearer <token> header
-All AI endpoints require valid token
-Optimistic UI Updates
+### 3. Update base URL (if needed)
+In `lib/services/api_service.dart`:
+```dart
+final String baseUrl = "http://10.0.2.2:3000/api";  // Android emulator
+// OR
+final String baseUrl = "http://localhost:3000/api";  // iOS simulator
+```
 
-Chats appear instantly with temporary negative IDs
-Background resolver polls for real ID from server
-Spinner shows until resolution completes
-Auto-Title Generation
+### 4. Run the app
+```bash
+flutter run
+```
 
-Triggered automatically after first message
-Uses OpenAI to generate 6-word summary
-Fallback to manual title if generation fails
-Image Upload Flow
+</details>
 
-Select images with FilePicker
-Upload to /api/ai/uploads (multipart/form-data)
-Receive attachment IDs
-Send message with attachmentIds array
-AI analyzes images and responds
-Research Mode
+---
 
-Toggle activates Tavily web search
-AI searches before responding
-Returns sources with title, snippet, URL
-Sources clickable to open in browser
-📦 DependenciesFlutter (pubspec.yaml)
-yamldependencies:
+## 🔌 API Endpoints
+
+### Conversations
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/ai/chats` | Create new chat | ✅ |
+| `GET` | `/api/ai/chats` | List user's chats | ✅ |
+| `GET` | `/api/ai/chats/:id` | Get chat details | ✅ |
+| `POST` | `/api/ai/chats/:id/archive` | Archive/delete chat | ✅ |
+| `POST` | `/api/ai/chats/:id/title` | Auto-generate or set title | ✅ |
+
+### Messages
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/ai/chats/:id/messages` | Get chat messages | ✅ |
+| `POST` | `/api/ai/chats/:id/messages` | Send message (text/images) | ✅ |
+
+### Uploads
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/ai/uploads` | Upload image/file | ✅ |
+| `GET` | `/api/ai/uploads/:id` | Retrieve attachment | ✅ |
+| `DELETE` | `/api/ai/uploads/:id` | Delete attachment | ✅ |
+
+---
+
+## 📖 Usage Guide
+
+<details>
+<summary><b>💬 Creating a Chat</b></summary>
+
+1. Tap the **+** button (FAB or AppBar)
+2. Chat appears immediately with "New Chat" title
+3. Start sending messages
+4. Title auto-generates after first message
+
+</details>
+
+<details>
+<summary><b>✉️ Sending a Message</b></summary>
+
+1. Type your question in the text field
+2. **(Optional)** Tap 📎 to attach images
+3. Tap **Send** button
+4. AI responds with formatted text
+
+</details>
+
+<details>
+<summary><b>🔬 Using Research Mode</b></summary>
+
+1. Tap the 🔬 **science icon** in the AppBar
+2. Icon turns **yellow** when enabled
+3. Ask questions requiring current information
+4. AI searches the web and provides clickable sources
+
+> **Note:** Research mode uses web search credits. Enable only when you need real-time data.
+
+</details>
+
+<details>
+<summary><b>🖼️ Uploading Images</b></summary>
+
+1. Tap the 📎 **attachment icon**
+2. Select one or multiple images
+3. Preview appears below text field
+4. Tap **X** to remove individual images
+5. Send with or without text
+6. AI analyzes images and responds
+
+**Supported formats:** JPG, PNG, GIF, WebP
+
+</details>
+
+<details>
+<summary><b>✏️ Editing Chat Title</b></summary>
+
+1. Tap the **chat title** in the AppBar
+2. Enter new title in dialog
+3. Tap **Save**
+4. Title updates immediately
+
+</details>
+
+---
+
+## 🗄️ Database Schema
+
+### `conversations` Table
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INT (PK) | Auto-incrementing chat ID |
+| `user_id` | INT (FK) | Owner of the chat |
+| `title` | VARCHAR(255) | Chat title |
+| `created_at` | DATETIME | Creation timestamp |
+| `updated_at` | DATETIME | Last update timestamp |
+| `is_archived` | BOOLEAN | Soft delete flag |
+
+### `messages` Table
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INT (PK) | Auto-incrementing message ID |
+| `conversation_id` | INT (FK) | Parent chat |
+| `role` | ENUM | 'user' or 'assistant' |
+| `text` | TEXT | Message content |
+| `created_at` | DATETIME | Sent timestamp |
+| `attachment_ids` | JSON | Array of attachment IDs |
+
+### `attachments` Table
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INT (PK) | Auto-incrementing attachment ID |
+| `conversation_id` | INT (FK) | Parent chat |
+| `file_path` | VARCHAR(500) | Server file location |
+| `file_name` | VARCHAR(255) | Original filename |
+| `mime_type` | VARCHAR(100) | File type |
+| `created_at` | DATETIME | Upload timestamp |
+
+---
+
+## 🔑 Key Implementation Details
+
+<details>
+<summary><b>🔐 Authentication Flow</b></summary>
+
+1. User logs in → Backend returns JWT token
+2. Token stored in `SharedPreferences`
+3. `ApiService.loadAuthToken()` loads token on app start
+4. Token sent in `Authorization: Bearer <token>` header
+5. Backend `verifyToken` middleware validates all AI requests
+
+</details>
+
+<details>
+<summary><b>⚡ Optimistic UI Updates</b></summary>
+
+1. User taps "Create Chat" → Chat appears instantly with negative temp ID
+2. Backend creates real chat → Returns real ID
+3. Frontend polls `listChats()` to find new chat
+4. Replaces temp ID with real ID
+5. Spinner disappears, chat is ready
+
+**Benefit:** Zero perceived latency for users
+
+</details>
+
+<details>
+<summary><b>🏷️ Auto-Title Generation</b></summary>
+
+1. User sends first message
+2. Backend saves message
+3. Backend calls OpenAI: "Generate a 6-word title for this conversation"
+4. OpenAI returns title
+5. Backend updates `conversations.title`
+6. Frontend polls and displays new title
+
+**Fallback:** If auto-title fails, chat keeps "New Chat" title
+
+</details>
+
+<details>
+<summary><b>📤 Image Upload Flow</b></summary>
+```mermaid
+graph LR
+    A[User selects images] --> B[FilePicker]
+    B --> C[Upload to /api/ai/uploads]
+    C --> D[Get attachment IDs]
+    D --> E[Send message with attachmentIds]
+    E --> F[AI analyzes images]
+    F --> G[Display response]
+```
+
+**MIME Type Detection:**
+- `.jpg` / `.jpeg` → `image/jpeg`
+- `.png` → `image/png`
+- `.gif` → `image/gif`
+- `.webp` → `image/webp`
+
+</details>
+
+---
+
+## 🐛 Troubleshooting
+
+<details>
+<summary><b>❌ 401 Unauthorized Errors</b></summary>
+
+**Symptoms:**
+```
+📥 listChats status: 401
+📥 listChats body: {"error":"Access denied"}
+```
+
+**Causes:**
+- Auth token not loaded
+- Token expired
+- Wrong SharedPreferences key
+
+**Fixes:**
+1. Ensure `ApiService.loadAuthToken()` is called in `main.dart`:
+```dart
+   void main() async {
+     WidgetsFlutterBinding.ensureInitialized();
+     await ApiService.loadAuthToken();  // ← Add this
+     runApp(MyApp());
+   }
+```
+
+2. Check token is loaded:
+```dart
+   print('🔑 Token: ${ApiService.authToken}');
+```
+
+3. Verify SharedPreferences key is `'authToken'` (not `'auth_token'`)
+
+</details>
+
+<details>
+<summary><b>🖼️ Images Not Displaying</b></summary>
+
+**Symptoms:**
+- Gray boxes with broken image icon
+- "No data" error
+
+**Causes:**
+- Auth token not passed to `getAttachment`
+- Wrong attachment ID
+- File deleted from server
+
+**Fixes:**
+1. Update `getAttachment` to use static `authToken`:
+```dart
+   if (authToken != null) 'Authorization': 'Bearer $authToken'
+```
+
+2. Check attachment IDs in database:
+```sql
+   SELECT * FROM attachments WHERE conversation_id = 123;
+```
+
+</details>
+
+<details>
+<summary><b>📁 File Upload Fails (application/octet-stream)</b></summary>
+
+**Symptoms:**
+```
+Error: File type application/octet-stream not supported
+```
+
+**Cause:**
+- MIME type not set correctly in multipart upload
+
+**Fix:**
+Add `http_parser` and set content type:
+```dart
+import 'package:http_parser/http_parser.dart';
+
+request.files.add(
+  await http.MultipartFile.fromPath(
+    'file',
+    filePath,
+    contentType: MediaType.parse('image/jpeg'),  // ← Explicit type
+  ),
+);
+```
+
+</details>
+
+<details>
+<summary><b>🔌 Backend Not Receiving Requests</b></summary>
+
+**Symptoms:**
+- No logs in backend console
+- Timeout errors in Flutter
+
+**Causes:**
+- Wrong base URL for emulator
+- Backend not running
+- Firewall blocking
+
+**Fixes:**
+
+| Platform | Correct Base URL |
+|----------|------------------|
+| Android Emulator | `http://10.0.2.2:3000/api` |
+| iOS Simulator | `http://localhost:3000/api` |
+| Physical Device | `http://YOUR_IP:3000/api` |
+
+**Verify backend is running:**
+```bash
+curl http://localhost:3000/api/ai/chats
+```
+
+</details>
+
+---
+
+## 📦 Dependencies
+
+<details>
+<summary><b>Flutter Dependencies</b></summary>
+
+Add to `pubspec.yaml`:
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
   http: ^1.1.0
   shared_preferences: ^2.2.2
   intl: ^0.19.0
   file_picker: ^8.0.0
   url_launcher: ^6.2.0
   flutter_markdown: ^0.7.4
-  http_parser: ^4.0.2Node.js (package.json)
-json{
+  http_parser: ^4.0.2
+```
+
+Install:
+```bash
+flutter pub get
+```
+
+</details>
+
+<details>
+<summary><b>Node.js Dependencies</b></summary>
+
+Add to `package.json`:
+```json
+{
   "dependencies": {
     "express": "^4.18.2",
     "mysql2": "^3.6.0",
@@ -234,31 +569,98 @@ json{
     "cors": "^2.8.5",
     "axios": "^1.6.0"
   }
-}⚠️ Known Limitations
-No pagination UI - Message pagination endpoint exists but not implemented in UI
-No message editing - Can't edit sent messages
-No message deletion - Can only archive entire chats
-Android emulator only - iOS networking may need adjustments
-No rate limiting - Backend has no request throttling
-No token refresh - JWT tokens expire without auto-refresh
+}
+```
 
-🐛 Troubleshooting
-401 Unauthorized Errors
+Install:
+```bash
+npm install
+```
 
-Cause: Auth token not loaded or expired
-Fix: Ensure ApiService.loadAuthToken() is called in main.dart
+</details>
 
-Images Not Displaying
+---
 
-Cause: Auth token issue in getAttachment
-Fix: Verify authToken is used (not reading from SharedPreferences)
+## ⚠️ Known Limitations
 
-File Upload Fails (application/octet-stream)
+> **Note:** These are planned improvements for future releases.
 
-Cause: MIME type not set correctly
-Fix: Use http_parser to explicitly set content type
+- [ ] No pagination UI (endpoint exists but not used)
+- [ ] No message editing
+- [ ] No message deletion (only archive entire chats)
+- [ ] Android emulator only (iOS needs URL adjustments)
+- [ ] No rate limiting on backend
+- [ ] No automatic token refresh
+- [ ] No offline mode
+- [ ] No push notifications
 
-Backend Not Receiving Requests
+---
 
-Cause: Wrong base URL for emulator
-Fix: Use 10.0.2.2:3000 for Android, localhost:3000 for iOS
+## 🔮 Roadmap
+
+### Version 1.1 (Next Release)
+- [ ] Message pagination UI
+- [ ] Dark mode
+- [ ] Export chat as PDF/Markdown
+- [ ] Code syntax highlighting in messages
+
+### Version 1.2 (Future)
+- [ ] Voice input/output
+- [ ] PDF document upload and analysis
+- [ ] Share chat via link
+- [ ] Multi-language support
+
+### Version 2.0 (Long-term)
+- [ ] Streaming responses (real-time typing effect)
+- [ ] Push notifications
+- [ ] Offline mode with sync
+- [ ] Multi-model support (GPT-4, Claude, Gemini)
+
+---
+
+## 👥 Team
+
+| Role | Name |
+|------|------|
+| Lead Developer | Jimmy |
+| Project Type | Team Project - Study Buddy |
+
+---
+
+## 📄 License
+
+This project is part of the Study Buddy application.  
+© 2024 Study Buddy Team. All rights reserved.
+
+---
+
+## 🙏 Acknowledgments
+
+- [OpenAI](https://openai.com/) - GPT-4o-mini API
+- [Tavily](https://tavily.com/) - Web search API
+- [Flutter](https://flutter.dev/) - Mobile framework
+- [Express.js](https://expressjs.com/) - Backend framework
+- [MySQL](https://www.mysql.com/) - Database
+
+---
+
+## 📞 Support
+
+**Having issues?** Check the [Troubleshooting](#-troubleshooting) section first.
+
+**Still stuck?** Open an issue on GitHub with:
+- Clear description of the problem
+- Steps to reproduce
+- Error messages/logs
+- Screenshots (if applicable)
+
+---
+
+<div align="center">
+
+**Last Updated:** November 15, 2024  
+**Version:** 1.0.0 (AI Assistant Feature)
+
+Made with ❤️ by the Study Buddy Team
+
+</div>
