@@ -1,16 +1,18 @@
 import db from "../config/db.js";
 
 // POST /api/ai/chats - Create a new conversation
-export const create = (req, res) => {
-  const user_id = req.user.user_id;
-  const { title = "New Chat" } = req.body;
+export const create = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const { title = "New Chat" } = req.body;
 
-  const sql = "INSERT INTO conversations (user_id, title) VALUES (?, ?)";
-  db.query(sql, [user_id, title], (err, result) => {
-    if (err) {
-      console.error("❌ Error creating conversation:", err);
-      return res.status(500).json({ error: "Failed to create conversation" });
-    }
+    console.log('💬 Creating conversation for user:', user_id, 'title:', title);
+
+    const sql = "INSERT INTO conversations (user_id, title) VALUES (?, ?)";
+    const [result] = await db.execute(sql, [user_id, title]);
+    
+    console.log('✅ Conversation created with ID:', result.insertId);
+    
     res.status(201).json({
       id: result.insertId,
       user_id,
@@ -19,7 +21,10 @@ export const create = (req, res) => {
       updated_at: new Date(),
       is_archived: false,
     });
-  });
+  } catch (err) {
+    console.error("❌ Error creating conversation:", err);
+    res.status(500).json({ error: "Failed to create conversation", details: err.message });
+  }
 };
 
 // GET /api/ai/chats - List all conversations (non-archived)
@@ -46,42 +51,44 @@ export const list = async (req, res) => {
 
 
 // POST /api/ai/chats/:id/archive - Archive a conversation
-export const archive = (req, res) => {
-  const user_id = req.user.user_id;
-  const { id } = req.params;
+export const archive = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const { id } = req.params;
 
-  const sql = "UPDATE conversations SET is_archived = TRUE WHERE id = ? AND user_id = ?";
-  db.query(sql, [id, user_id], (err, result) => {
-    if (err) {
-      console.error("❌ Error archiving conversation:", err);
-      return res.status(500).json({ error: "Failed to archive conversation" });
-    }
+    const sql = "UPDATE conversations SET is_archived = TRUE WHERE id = ? AND user_id = ?";
+    const [result] = await db.execute(sql, [id, user_id]);
+    
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Conversation not found" });
     }
     res.json({ message: "Conversation archived successfully" });
-  });
+  } catch (err) {
+    console.error("❌ Error archiving conversation:", err);
+    res.status(500).json({ error: "Failed to archive conversation", details: err.message });
+  }
 };
 
 // POST /api/ai/chats/:id/title - Update conversation title
-export const title = (req, res) => {
-  const user_id = req.user.user_id;
-  const { id } = req.params;
-  const { title } = req.body;
+export const title = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const { id } = req.params;
+    const { title } = req.body;
 
-  if (!title) {
-    return res.status(400).json({ error: "Title is required" });
-  }
-
-  const sql = "UPDATE conversations SET title = ? WHERE id = ? AND user_id = ?";
-  db.query(sql, [title, id, user_id], (err, result) => {
-    if (err) {
-      console.error("❌ Error updating title:", err);
-      return res.status(500).json({ error: "Failed to update title" });
+    if (!title) {
+      return res.status(400).json({ error: "Title is required" });
     }
+
+    const sql = "UPDATE conversations SET title = ? WHERE id = ? AND user_id = ?";
+    const [result] = await db.execute(sql, [title, id, user_id]);
+    
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Conversation not found" });
     }
     res.json({ message: "Title updated successfully", title });
-  });
+  } catch (err) {
+    console.error("❌ Error updating title:", err);
+    res.status(500).json({ error: "Failed to update title", details: err.message });
+  }
 };

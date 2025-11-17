@@ -1,5 +1,15 @@
 // backend/src/controllers/assignmentController.js
 import db from "../config/db.js";
+import path from "path";
+
+const ATTACHMENT_SUBDIR = "assignments";
+
+const getStoredFilePath = (file) => {
+  if (!file) return { storedPath: null, originalName: null };
+  const storedPath = path.posix.join(ATTACHMENT_SUBDIR, file.filename);
+  const originalName = file.originalname ?? file.filename;
+  return { storedPath, originalName };
+};
 
 /** Ensure a default "General" course exists for the user; return its course_id */
 async function ensureDefaultCourse(userId) {
@@ -33,18 +43,24 @@ export const getAssignments = async (req, res) => {
     const userId = getUserId(req);
     if (!userId) return res.status(400).json({ error: "userId missing" });
 
+    console.log('\n📥 GET /api/assignments - Fetching assignments for user:', userId);
+    
     const [rows] = await db.query(
       `SELECT assignment_id, course_id, user_id, title, description,
               DATE_FORMAT(due_date, "%Y-%m-%d") AS due_date,
-              priority, status, created_at
+              priority, status, file_path, file_name, created_at
        FROM assignments
        WHERE user_id = ?
        ORDER BY (due_date IS NULL), due_date ASC, assignment_id DESC`,
       [userId]
     );
+    
+    console.log('📊 SQL: SELECT * FROM assignments WHERE user_id =', userId);
+    console.log(`✅ Found ${rows.length} assignments`);
+    
     res.json(rows);
   } catch (error) {
-    console.error("Error fetching assignments:", error);
+    console.error("❌ Error fetching assignments:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -53,7 +69,6 @@ export const getAssignments = async (req, res) => {
 export const addAssignment = async (req, res) => {
   try {
     const userId = getUserId(req);
-    // accept both camel & snake
     const title = pick(req.body, 'title');
     const description = pick(req.body, 'description');
     const dueRaw = pick(req.body, 'due_date', 'dueDate');
@@ -66,23 +81,25 @@ export const addAssignment = async (req, res) => {
     }
 
     const due = normalizeDate(dueRaw);
-    if (dueRaw !== undefined && !due) {
-      return res.status(400).json({ error: "due_date must be YYYY-MM-DD (or omit it)" });
+    if (!due) {
+      return res.status(400).json({ error: "due_date is required and must be YYYY-MM-DD format" });
     }
 
     // course_id NOT NULL in schema: use provided or fallback to General
     const cid = courseIdRaw ? Number(courseIdRaw) : await ensureDefaultCourse(Number(userId));
 
+    const { storedPath, originalName } = getStoredFilePath(req.file);
+
     const [ins] = await db.query(
-      `INSERT INTO assignments (course_id, user_id, title, description, due_date, priority, status)
-       VALUES (?,?,?,?,?,?,?)`,
-      [cid, userId, String(title).trim(), String(description ?? '').trim(), due, priority, status]
+      `INSERT INTO assignments (course_id, user_id, title, description, due_date, priority, status, file_path, file_name)
+       VALUES (?,?,?,?,?,?,?,?,?)`,
+      [cid, userId, String(title).trim(), String(description ?? '').trim(), due, priority, status, storedPath, originalName]
     );
 
     const [rows] = await db.query(
       `SELECT assignment_id, course_id, user_id, title, description,
               DATE_FORMAT(due_date, "%Y-%m-%d") AS due_date,
-              priority, status, created_at
+              priority, status, file_path, file_name, created_at
        FROM assignments
        WHERE assignment_id = ?`,
       [ins.insertId]
@@ -117,6 +134,13 @@ export const updateAssignment = async (req, res) => {
 
     if (body.status !== undefined) { fields.push('status=?'); vals.push(body.status); }
     if (body.priority !== undefined) { fields.push('priority=?'); vals.push(body.priority); }
+    
+    // Handle file upload if present
+    if (req.file) {
+      const { storedPath, originalName } = getStoredFilePath(req.file);
+      fields.push('file_path=?'); vals.push(storedPath);
+      fields.push('file_name=?'); vals.push(originalName);
+    }
 
     const courseIdRaw = pick(body, 'courseId', 'course_id');
     if (courseIdRaw !== undefined) { fields.push('course_id=?'); vals.push(Number(courseIdRaw)); }
@@ -131,7 +155,7 @@ export const updateAssignment = async (req, res) => {
     const [rows] = await db.query(
       `SELECT assignment_id, course_id, user_id, title, description,
               DATE_FORMAT(due_date, "%Y-%m-%d") AS due_date,
-              priority, status, created_at
+              priority, status, file_path, file_name, created_at
        FROM assignments
        WHERE assignment_id = ?`,
       [id]
@@ -148,10 +172,17 @@ export const updateAssignment = async (req, res) => {
 export const deleteAssignment = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    console.log('\n🗑️ DELETE /api/assignments/' + id);
+    console.log('💾 SQL: DELETE FROM assignments WHERE assignment_id =', id);
+    
     await db.query("DELETE FROM assignments WHERE assignment_id=?", [id]);
+    
+    console.log('✅ Assignment deleted successfully');
+    
     res.json({ ok: true, deleted: Number(id) });
   } catch (error) {
-    console.error("Error deleting assignment:", error);
+    console.error("❌ Error deleting assignment:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
