@@ -4,6 +4,8 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ApiService {
   ApiService()
@@ -27,11 +29,7 @@ class ApiService {
   static Future<void> loadAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     authToken = prefs.getString('authToken');
-    if (authToken != null) {
-      print('✅ Auth token loaded from storage: ${authToken!.substring(0, 20)}...');
-    } else {
-      print('⚠️ No auth token found in storage');
-    }
+    debugPrint('🔑 Token loaded: ${authToken != null}');
   }
 
   static Future<void> clearAuthToken() async {
@@ -43,7 +41,7 @@ class ApiService {
   // Validate if the stored token is still valid
   static Future<bool> validateToken() async {
     if (authToken == null) return false;
-    
+
     try {
       final validateUrl = Platform.isAndroid 
           ? "http://10.0.2.2:3000/api/auth/validate"
@@ -62,45 +60,10 @@ class ApiService {
   Map<String, String> _headers({bool json = true}) {
     final headers = <String, String>{};
     if (json) headers['Content-Type'] = 'application/json';
-    if (ApiService.authToken != null) {
-      headers['Authorization'] = 'Bearer ${ApiService.authToken}';
-      print('🔑 Using auth token: ${ApiService.authToken!.substring(0, 20)}...');
-    } else {
-      print('⚠️ No auth token available!');
-    }
+    if (authToken != null) headers['Authorization'] = 'Bearer $authToken';  // ← Use static
     return headers;
   }
 
-  String buildAttachmentUrl(String relativePath) {
-    final normalized = relativePath.startsWith('uploads/')
-        ? relativePath
-        : 'uploads/${relativePath.replaceFirst(RegExp(r'^/'), '')}';
-    final base = baseOrigin.endsWith('/')
-        ? baseOrigin.substring(0, baseOrigin.length - 1)
-        : baseOrigin;
-    return '$base/$normalized';
-  }
-
-  Future<http.MultipartFile> _multipartFromPlatformFile(
-    String fieldName,
-    PlatformFile file,
-  ) async {
-    if (file.path != null) {
-      return await http.MultipartFile.fromPath(
-        fieldName,
-        file.path!,
-        filename: file.name,
-      );
-    }
-    if (file.bytes != null) {
-      return http.MultipartFile.fromBytes(
-        fieldName,
-        file.bytes!,
-        filename: file.name,
-      );
-    }
-    throw ArgumentError('Selected file has no data');
-  }
 
   Future<Map<String, dynamic>?> postRegister(
     String first, String last, String email, String password) async {
@@ -435,8 +398,383 @@ class ApiService {
     }
   }
 
-  // Ask AI Tutor (protected endpoint)
-  Future<int?> _getOrCreateLegacyChatId() async {
+  // ========== AI CHATS ==========
+
+Future<Map<String, dynamic>?> createChat({String? title}) async {
+  try {
+    print('Creating chat with title: $title');
+    final res = await http.post(
+      Uri.parse('$baseUrl/ai/chats'),
+      headers: _headers(),
+      body: jsonEncode({'title': title ?? 'New Chat'}),
+    );
+
+    print('Create chat response: ${res.statusCode} ${res.body}');
+
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      return jsonDecode(res.body);
+    }
+    return null;
+  } catch (e) {
+    print('createChat error: $e');
+    return null;
+  }
+}
+
+  Future<List<dynamic>> listChats() async {
+    final url = '$baseUrl/ai/chats';
+    debugPrint('🌐 GET $url');
+
+    try {
+      final headers = _headers(json: true);  // ← NO await here
+      debugPrint('🔑 Headers: $headers');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      ).timeout(Duration(seconds: 10));
+
+      debugPrint('📥 listChats status: ${response.statusCode}');
+      debugPrint('📥 listChats body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+        return decoded as List<dynamic>;
+      } else {
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('❌ listChats error: $e');
+      rethrow;
+    }
+  }
+
+Future<Map<String, dynamic>?> getChatDetails(int chatId) async {
+  try {
+    print('📖 Fetching chat details for chatId: $chatId');
+    final res = await http.get(
+      Uri.parse('$baseUrl/ai/chats/$chatId'),
+      headers: _headers(),
+    );
+
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body);
+      print('✅ Chat details fetched: $data');
+      return data;
+    }
+    print('❌ Failed to fetch chat details: ${res.statusCode}');
+    return null;
+  } catch (e) {
+    print('getChatDetails error: $e');
+    return null;
+  }
+}
+
+Future<bool> archiveChat(int chatId, bool archive) async {
+  try {
+    final res = await http.post(
+      Uri.parse('$baseUrl/ai/chats/$chatId/archive'),
+      headers: _headers(),
+      body: jsonEncode({'archive': archive}),
+    );
+    return res.statusCode >= 200 && res.statusCode < 300;
+  } catch (e) {
+    print('archiveChat error: $e');
+    return false;
+  }
+}
+
+// Update chat title (manual edit)
+  Future<bool> updateChatTitle(int chatId, String newTitle) async {
+    try {
+      print('📝 Updating chat title for chatId: $chatId to: $newTitle');
+
+      final res = await http.patch(
+        Uri.parse('$baseUrl/ai/chats/$chatId/title'),
+        headers: _headers(),
+        body: jsonEncode({'title': newTitle}),
+      );
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        print('✅ Chat title updated successfully');
+        return true;
+      }
+
+      print('❌ Failed to update chat title: ${res.statusCode} ${res.body}');
+      return false;
+    } catch (e) {
+      print('❌ updateChatTitle error: $e');
+      return false;
+    }
+  }
+
+// Auto-generate title by calling the title endpoint with empty body
+  Future<String?> autoTitleChatAndFetchTitle(int chatId) async {
+    try {
+      print('🏷️ Auto-generating title for chat $chatId');
+
+      final res = await http.post(
+        Uri.parse('$baseUrl/ai/chats/$chatId/title'),
+        headers: _headers(),
+        body: jsonEncode({}),  // Empty body triggers auto-generation
+      );
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final data = jsonDecode(res.body);
+        final title = data['title'] as String?;
+        print('✅ Title auto-generated: $title');
+        return title;
+      }
+
+      print('❌ Failed to auto-generate title: ${res.statusCode}');
+      return null;
+    } catch (e) {
+      print('❌ autoTitleChatAndFetchTitle error: $e');
+      return null;
+    }
+  }
+
+// ========== MESSAGES ==========
+
+Future<Map<String, dynamic>?> listChatMessages(int chatId, {int limit = 30, String? cursor}) async {
+  try {
+    final qp = <String, String>{'limit': '$limit'};
+    if (cursor != null) qp['cursor'] = cursor;
+    final uri = Uri.parse('$baseUrl/ai/chats/$chatId/messages').replace(queryParameters: qp);
+
+    final res = await http.get(uri, headers: _headers());
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      return jsonDecode(res.body) as Map<String, dynamic>;
+    }
+    print('listChatMessages failed: ${res.statusCode} ${res.body}');
+  } catch (e) {
+    print('listChatMessages error: $e');
+  }
+  return null;
+}
+
+Future<Map<String, dynamic>?> sendChatMessage(
+  int chatId,
+  String text, {
+  List<int>? attachmentIds,
+  bool researchMode = false,
+}) async {
+  try {
+    final Map<String, dynamic> body = {'text': text};
+    if (attachmentIds != null && attachmentIds.isNotEmpty) {
+      body['attachmentIds'] = attachmentIds;
+    }
+    if (researchMode) {
+      body['researchMode'] = true;
+    }
+
+    print('🚀 Sending message to chatId: $chatId');
+    print('🚀 Body: $body');
+    print('🔬 Research mode: $researchMode');
+
+    final res = await http.post(
+      Uri.parse('$baseUrl/ai/chats/$chatId/messages'),
+      headers: _headers(),
+      body: jsonEncode(body),
+    );
+
+    print('🚀 Response status: ${res.statusCode}');
+
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      return jsonDecode(res.body) as Map<String, dynamic>;
+    }
+    print('sendChatMessage failed: ${res.statusCode} ${res.body}');
+  } catch (e) {
+    print('sendChatMessage error: $e');
+  }
+  return null;
+}
+
+// ========== UPLOADS ==========
+
+  Future<Map<String, dynamic>?> uploadAttachment(String filePath, int conversationId) async {
+    try {
+      print('📤 Uploading file: $filePath to conversation: $conversationId');
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/ai/uploads'),
+      );
+
+      // Add auth header
+      if (authToken != null) {
+        request.headers['Authorization'] = 'Bearer $authToken';
+      }
+
+      request.fields['conversation_id'] = conversationId.toString();
+
+      // ✅ Explicitly detect and set content type
+      String? mimeType;
+      final extension = filePath.split('.').last.toLowerCase();
+
+      switch (extension) {
+        case 'jpg':
+        case 'jpeg':
+          mimeType = 'image/jpeg';
+          break;
+        case 'png':
+          mimeType = 'image/png';
+          break;
+        case 'gif':
+          mimeType = 'image/gif';
+          break;
+        case 'webp':
+          mimeType = 'image/webp';
+          break;
+        case 'pdf':
+          mimeType = 'application/pdf';
+          break;
+        default:
+          mimeType = 'application/octet-stream';
+      }
+
+      print('📎 Detected MIME type: $mimeType for extension: $extension');
+
+      // Add file with explicit content type
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          filePath,
+          contentType: MediaType.parse(mimeType),  // ✅ Explicit content type
+        ),
+      );
+
+      final streamedRes = await request.send();
+      final res = await http.Response.fromStream(streamedRes);
+
+      print('📥 Upload response: ${res.statusCode}');
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final data = jsonDecode(res.body);
+        print('✅ File uploaded: ${data['id']}');
+        return data;
+      }
+
+      print('❌ Upload failed: ${res.body}');
+      return null;
+    } catch (e) {
+      print('❌ uploadAttachment error: $e');
+      return null;
+    }
+  }
+
+  // Upload multiple attachments at once
+  Future<List<int>> uploadMultipleAttachments(List<String> filePaths, int conversationId) async {
+    final List<int> attachmentIds = [];
+
+    for (String filePath in filePaths) {
+      try {
+        final result = await uploadAttachment(filePath, conversationId);
+        if (result != null && result['id'] != null) {
+          attachmentIds.add(result['id'] as int);
+          print('✅ Uploaded ${filePath.split('/').last}: ID ${result['id']}');
+        }
+      } catch (e) {
+        print('❌ Failed to upload $filePath: $e');
+        // Continue with other files even if one fails
+      }
+    }
+
+    print('📦 Total uploaded: ${attachmentIds.length}/${filePaths.length} files');
+    return attachmentIds;
+  }
+
+  Future<http.Response?> getAttachment(int attachmentId) async {
+    try {
+      debugPrint('🖼️ Fetching attachment: $attachmentId');
+
+      final res = await http.get(
+        Uri.parse('$baseUrl/ai/uploads/$attachmentId'),
+        headers: {
+          if (authToken != null) 'Authorization': 'Bearer $authToken',  // ✅ Use static authToken
+        },
+      );
+
+      debugPrint('🖼️ Attachment response: ${res.statusCode}');
+
+      if (res.statusCode == 200) {
+        debugPrint('✅ Attachment loaded successfully');
+        return res;
+      } else {
+        debugPrint('❌ Failed to load attachment: ${res.statusCode}');
+      }
+      return null;
+    } catch (e) {
+      debugPrint('❌ getAttachment error: $e');
+      return null;
+    }
+  }
+
+Future<bool> deleteAttachment(int attachmentId) async {
+  try {
+    final res = await http.delete(
+      Uri.parse('$baseUrl/ai/uploads/$attachmentId'),
+      headers: _headers(),
+    );
+    return res.statusCode >= 200 && res.statusCode < 300;
+  } catch (e) {
+    print('deleteAttachment error: $e');
+    return false;
+  }
+}
+
+// ========== HELPER METHODS ==========
+
+// Helper to get newest chat ID (for placeholder resolution)
+Future<int?> getNewestChatId() async {
+  try {
+    final chats = await listChats();
+    if (chats != null && chats.isNotEmpty) {
+      return chats.first['id'] as int?;
+    }
+    return null;
+  } catch (e) {
+    print('getNewestChatId error: $e');
+    return null;
+  }
+}
+
+// ========== WRAPPER METHODS (for ai_tutor_screen.dart compatibility) ==========
+
+// Wrapper for getChatDetails
+Future<Map<String, dynamic>?> getChatById(int chatId) async {
+  return await getChatDetails(chatId);
+}
+
+// Wrapper for listChatMessages
+Future<Map<String, dynamic>?> listMessages(int chatId, {int? cursor}) async {
+  return await listChatMessages(chatId, limit: 50, cursor: cursor?.toString());
+}
+
+// Wrapper for sendChatMessage
+Future<Map<String, dynamic>?> sendMessage(
+  int chatId,
+  String text, {
+  List<int> attachmentIds = const [],
+  bool researchMode = false,
+}) async {
+  return await sendChatMessage(
+    chatId,
+    text,
+    attachmentIds: attachmentIds.isEmpty ? null : attachmentIds,
+    researchMode: researchMode,
+  );
+}
+
+// Wrapper for uploadAttachment
+Future<Map<String, dynamic>?> uploadFile(String filePath, int conversationId) async {
+  return await uploadAttachment(filePath, conversationId);
+}
+
+// ========== LEGACY/DEPRECATED METHODS ==========
+
+@Deprecated('Use createChat and sendChatMessage instead')
+Future<int?> _getOrCreateLegacyChatId() async {
   final prefs = await SharedPreferences.getInstance();
   var cid = prefs.getInt('last_ai_conversation_id');
   if (cid == null) {
@@ -446,15 +784,14 @@ class ApiService {
     await prefs.setInt('last_ai_conversation_id', cid);
   }
   return cid;
-  }
+}
 
-  @Deprecated('Use sendChatMessage instead')
+@Deprecated('Use sendChatMessage instead')
 Future<String?> askTutor(String question) async {
   try {
     final cid = await _getOrCreateLegacyChatId();
     if (cid == null) return null;
 
-    // IMPORTANT: body must be Map<String, dynamic>
     final res = await sendChatMessage(cid, question);
     final asst = (res?['assistant'] as Map<String, dynamic>?);
     return asst?['text'] as String?;
@@ -464,11 +801,9 @@ Future<String?> askTutor(String question) async {
   }
 }
 
-
-  // Get chat history for the currently authenticated user
-  @Deprecated('Use listChats / listChatMessages instead')
-  Future<List<dynamic>?> getChatHistory(int userId) async {
-    try {
+@Deprecated('Use listChats / listChatMessages instead')
+Future<List<dynamic>?> getChatHistory(int userId) async {
+  try {
     final prefs = await SharedPreferences.getInstance();
     final cid = prefs.getInt('last_ai_conversation_id');
     if (cid == null) return <dynamic>[];
@@ -476,9 +811,8 @@ Future<String?> askTutor(String question) async {
     final page = await listChatMessages(cid, limit: 100);
     final items = (page?['items'] as List? ?? []).cast<Map<String, dynamic>>();
 
-    // Convert to legacy shape your screen expected:
     final List<Map<String, dynamic>> out = [];
-    final seq = items.reversed.toList(); // oldest-first
+    final seq = items.reversed.toList();
 
     for (int i = 0; i < seq.length - 1; i++) {
       final a = seq[i], b = seq[i + 1];
@@ -491,7 +825,7 @@ Future<String?> askTutor(String question) async {
           'ai_response': b['text'],
           'timestamp': b['created_at'],
         });
-        i++; // skip paired assistant
+        i++;
       }
     }
     return out;
@@ -500,160 +834,5 @@ Future<String?> askTutor(String question) async {
     return <dynamic>[];
   }
 }
-
-  Future<Map<String, dynamic>?> createChat({String? title}) async {
-    try {
-      final headers = _headers();
-      print('💬 Creating chat: $title');
-      final res = await http.post(
-        Uri.parse('$baseUrl/ai/chats'),
-        headers: headers,
-        body: jsonEncode({'title': title}),
-      ).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          print('❌ createChat timed out after 10 seconds');
-          throw TimeoutException('Request timed out');
-        },
-      );
-      print('💬 Response status: ${res.statusCode}');
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        return jsonDecode(res.body) as Map<String, dynamic>;
-      }
-      print('❌ createChat failed: ${res.statusCode} ${res.body}');
-      if (res.statusCode == 401) {
-        print('⚠️ Unauthorized - token may be invalid or expired');
-      }
-    } catch (e) {
-      print('❌ createChat error: $e');
-    }
-    return null;
-  }
-
-  Future<List<dynamic>?> listChats() async {
-    try {
-      final res = await http.get(
-        Uri.parse('$baseUrl/ai/chats'),
-        headers: _headers(),
-      );
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        return jsonDecode(res.body) as List<dynamic>;
-      }
-      print('listChats failed: ${res.statusCode} ${res.body}');
-    } catch (e) {
-      print('listChats error: $e');
-    }
-    return null;
-  }
-
-  Future<Map<String, dynamic>?> listChatMessages(int chatId, {int limit = 30, String? cursor}) async {
-    try {
-      final qp = <String, String>{ 'limit': '$limit' };
-      if (cursor != null) qp['cursor'] = cursor;
-      final uri = Uri.parse('$baseUrl/ai/chats/$chatId/messages').replace(queryParameters: qp);
-
-      final res = await http.get(uri, headers: _headers()).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          print('❌ listChatMessages timed out after 10 seconds');
-          throw TimeoutException('Request timed out');
-        },
-      );
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        return jsonDecode(res.body) as Map<String, dynamic>; // { items: [...], next_cursor }
-      }
-      print('listChatMessages failed: ${res.statusCode} ${res.body}');
-    } catch (e) {
-      print('listChatMessages error: $e');
-    }
-    return null;
-  }
-
-  Future<Map<String, dynamic>?> sendChatMessage(int chatId, String text, {List<int>? attachmentIds}) async {
-    try {
-      final Map<String, dynamic> body = {'text': text};
-      if (attachmentIds != null && attachmentIds.isNotEmpty) {
-        body['attachmentIds'] = attachmentIds;
-      }
-
-      print('🚀 Sending message to chatId: $chatId');
-      print('🚀 URL: $baseUrl/ai/chats/$chatId/messages');
-      print('🚀 Auth token present: ${ApiService.authToken != null}');
-      print('🚀 Body: $body');
-
-      final res = await http.post(
-        Uri.parse('$baseUrl/ai/chats/$chatId/messages'),
-        headers: _headers(),
-        body: jsonEncode(body),
-      ).timeout(
-        const Duration(seconds: 30), // Longer timeout for AI responses
-        onTimeout: () {
-          print('❌ sendChatMessage timed out after 30 seconds');
-          throw TimeoutException('Request timed out');
-        },
-      );
-      
-      print('🚀 Response status: ${res.statusCode}');
-      print('🚀 Response body: ${res.body}');
-      
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        return jsonDecode(res.body) as Map<String, dynamic>;
-      }
-      print('sendChatMessage failed: ${res.statusCode} ${res.body}');
-    } catch (e) {
-      print('sendChatMessage error: $e');
-    }
-    return null;
-  }
-
-
-  Future<int?> uploadAttachment(File file) async {
-    try {
-      final req = http.MultipartRequest('POST', Uri.parse('$baseUrl/ai/uploads'));
-      if (ApiService.authToken != null) {
-        req.headers['Authorization'] = 'Bearer ${ApiService.authToken}';
-      }
-      req.files.add(await http.MultipartFile.fromPath('file', file.path));
-
-      final res = await req.send();
-      final body = await res.stream.bytesToString();
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        final j = jsonDecode(body) as Map<String, dynamic>;
-        return j['attachmentId'] as int?;
-      }
-      print('uploadAttachment failed: ${res.statusCode} $body');
-    } catch (e) {
-      print('uploadAttachment error: $e');
-    }
-    return null;
-  }
-
-  Future<bool> autoTitleChat(int chatId) async {
-    try {
-      final res = await http.post(
-        Uri.parse('$baseUrl/ai/chats/$chatId/title'),
-        headers: _headers(),
-        body: jsonEncode({}),
-      );
-      return res.statusCode >= 200 && res.statusCode < 300;
-    } catch (e) {
-      print('autoTitleChat error: $e');
-      return false;
-    }
-  }
-
-  Future<bool> archiveChat(int chatId, bool archived) async {
-    try {
-      final res = await http.post(
-        Uri.parse('$baseUrl/ai/chats/$chatId/archive'),
-        headers: _headers(),
-        body: jsonEncode({'archived': archived}),
-      );
-      return res.statusCode >= 200 && res.statusCode < 300;
-    } catch (e) {
-      print('archiveChat error: $e');
-      return false;
-    }
-  }
 
 }
