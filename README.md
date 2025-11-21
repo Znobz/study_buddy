@@ -48,10 +48,6 @@ Built using Flutter, Node.js, and MySQL, Study Buddy is designed for performance
 - Password hashing
 - Persistent sessions via SharedPreferences
 
-#### 📚 Courses
-- Add, edit, and delete courses
-- Instructor & semester tracking
-- Course-level filtering across assignments & study sessions
 
 #### 📝 Assignments
 - Create, update, delete assignments
@@ -62,7 +58,6 @@ Built using Flutter, Node.js, and MySQL, Study Buddy is designed for performance
 #### ⏱️ Study Sessions
 - Track start/end times
 - Planned and actual durations
-- Linked to courses
 
 #### 📊 Grade Calculator
 - Weighted grade categories
