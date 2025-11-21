@@ -98,20 +98,17 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Networking and storage
+  # Core dependencies
   http: ^1.2.0
   shared_preferences: ^2.2.3
-
-  # State management and utilities
   provider: ^6.1.0
   intl: ^0.19.0
-
-  # Icons for iOS-style UI
   cupertino_icons: ^1.0.8
 
-  # Notifications and scheduling
-  flutter_local_notifications: ^19.0.0
-  timezone: ^0.10.1
+  # ✅ Notifications and scheduling (fixed duplicates)
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.2
+  file_picker: ^10.3.6
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,4 @@
-import db from '../config/db.js';
+import db from "../config/db.js";
 
 // POST /api/ai/chats - Create a new conversation
 export const create = async (req, res) => {
@@ -51,6 +51,7 @@ export const list = async (req, res) => {  // ← Add async
   }
 };
 
+
 // POST /api/ai/chats/:id/archive - Archive a conversation
 export const archive = async (req, res) => {
   try {
@@ -61,7 +62,7 @@ export const archive = async (req, res) => {
     const [result] = await db.query(sql, [id, user_id]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Conversation not found' });
+      return res.status(404).json({ error: "Conversation not found" });
     }
 
     console.log("✅ Chat archived:", id);

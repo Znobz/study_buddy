@@ -17,7 +17,7 @@ export const list = async (req, res) => {
       "SELECT 1 FROM conversations WHERE id=? AND user_id=?",
       [conversationId, userId]
     );
-    if (!conv.length) return res.status(404).json({ error: 'Not found' });
+    if (!conv.length) return res.status(404).json({ error: "Not found" });
 
     const limitRaw = parseInt(req.query.limit, 10);
     const limit = Math.min(Math.max(Number.isFinite(limitRaw) ? limitRaw : 30, 1), 100);
@@ -96,10 +96,10 @@ export const list = async (req, res) => {
 
     return res.json({ items, next_cursor });
   } catch (err) {
-    console.error('list messages error', err);
+    console.error("list messages error", err);
     return res.status(500).json({
       code: err.code,
-      error: err.sqlMessage || err.message || 'Failed to fetch messages'
+      error: err.sqlMessage || err.message || "Failed to fetch messages",
     });
   }
 };
@@ -112,19 +112,19 @@ export const send = async (req, res) => {
     const { text, attachmentIds = [], researchMode = false } = req.body || {};
 
     if (!text || !text.trim()) {
-      return res.status(400).json({ error: 'Message text is required' });
+      return res.status(400).json({ error: "Message text is required" });
     }
 
     const [conv] = await db.execute(
-      'SELECT id FROM conversations WHERE id=? AND user_id=?',
+      "SELECT id FROM conversations WHERE id=? AND user_id=?",
       [conversationId, userId]
     );
-    if (conv.length === 0) return res.status(404).json({ error: 'Not found' });
+    if (conv.length === 0) return res.status(404).json({ error: "Not found" });
 
     // Insert user message
     const [userInsert] = await db.execute(
-      'INSERT INTO messages (conversation_id, role, text) VALUES (?,?,?)',
-      [conversationId, 'user', text.trim()]
+      "INSERT INTO messages (conversation_id, role, text) VALUES (?,?,?)",
+      [conversationId, "user", text.trim()]
     );
     const userMessageId = userInsert.insertId;
 

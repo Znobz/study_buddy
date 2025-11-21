@@ -582,12 +582,7 @@ npm install
 ---
 
 
-## 👥 Team
 
-| Role | Name |
-|------|------|
-| Lead Developer | Julian |
-| Project Type | Team Project - Study Buddy |
 
 ---
 
@@ -628,3 +623,6 @@ This project is part of the Study Buddy application.
 Made with ❤️ by the Study Buddy Team
 
 </div>
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.

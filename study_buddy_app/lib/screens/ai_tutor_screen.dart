@@ -65,6 +65,14 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     } catch (e) {
       print('❌ Image picker error: $e');
       if (mounted) {
+        String errorMsg = 'Failed to load chat';
+        if (e.toString().contains('timeout') || e.toString().contains('TimeoutException')) {
+          errorMsg = 'Connection timeout. Please check if the server is running.';
+        } else if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
+          errorMsg = 'Cannot connect to server. Please check your connection.';
+        } else {
+          errorMsg = 'Failed to load chat: ${e.toString()}';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to pick images: $e')),
         );
@@ -245,7 +253,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       if (mounted) {
         setState(() => _messages.removeWhere((m) => m['_tmp'] == true));
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Send failed: $e')),
+          SnackBar(content: Text(errorMsg), duration: const Duration(seconds: 5)),
         );
       }
     } finally {

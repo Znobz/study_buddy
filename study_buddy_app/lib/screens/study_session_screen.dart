@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import '../services/session_service.dart';
 
 class StudySessionScreen extends StatefulWidget {
-  const StudySessionScreen({Key? key}) : super(key: key);
+  const StudySessionScreen({super.key});
 
   @override
   State<StudySessionScreen> createState() => _StudySessionScreenState();

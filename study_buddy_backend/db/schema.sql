@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS assignments (
   due_date DATETIME NOT NULL,
   priority ENUM('low','medium','high') DEFAULT 'medium',
   status ENUM('pending','in_progress','completed') DEFAULT 'pending',
+  file_path VARCHAR(500) DEFAULT NULL,
+  file_name VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
@@ -76,4 +78,39 @@ CREATE TABLE IF NOT EXISTS study_materials (
   uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
   FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE SET NULL
+);
+
+-- Conversations (for new AI chat system)
+CREATE TABLE IF NOT EXISTS conversations (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  title VARCHAR(255) DEFAULT 'New Chat',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  is_archived BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Messages (for new AI chat system)
+CREATE TABLE IF NOT EXISTS messages (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  conversation_id INT NOT NULL,
+  role ENUM('user', 'assistant') NOT NULL,
+  text TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+);
+
+-- Attachments (for file uploads in AI chat)
+CREATE TABLE IF NOT EXISTS attachments (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  message_id INT DEFAULT NULL,
+  file_path VARCHAR(500) NOT NULL,
+  file_name VARCHAR(255) NOT NULL,
+  file_size INT DEFAULT NULL,
+  mime_type VARCHAR(100) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE SET NULL
 );

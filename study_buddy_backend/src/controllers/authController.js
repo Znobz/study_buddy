@@ -29,24 +29,39 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
+  console.log('\n🔐 POST /api/auth/login');
+  console.log('📧 Email:', email);
+
   try {
+    console.log('💾 SQL: SELECT * FROM users WHERE email = ?');
     const sql = 'SELECT * FROM users WHERE email = ?';
     const [results] = await db.execute(sql, [email]);
     
-    if (results.length === 0) 
+    if (results.length === 0) {
+      console.log('❌ Login failed: User not found');
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
     const user = results[0];
     const validPass = bcrypt.compareSync(password, user.password_hash);
-    if (!validPass) 
+    if (!validPass) {
+      console.log('❌ Login failed: Invalid password');
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
+    console.log('✅ Password verified');
+    console.log('🔑 Generating JWT token for user_id:', user.user_id);
+    
     const token = jwt.sign({ user_id: user.user_id }, process.env.JWT_SECRET || 'fallback-secret-key', { expiresIn: '1d' });
+    
     // remove password_hash before sending user object
     delete user.password_hash;
+    
+    console.log('✅ Login successful! Welcome,', user.first_name);
+    
     res.json({ message: 'Login successful', token, user });
   } catch (err) {
-    console.error('Login error:', err);
+    console.error('❌ Login error:', err);
     res.status(500).json({ error: 'Login failed' });
   }
 };
