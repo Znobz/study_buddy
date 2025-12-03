@@ -98,15 +98,11 @@ Study Buddy Cloud is a complete evolution of the original Study Buddy app, now d
 #### ⏱️ **Study Session Analytics**
 - Start/stop time tracking with precision
 - Planned vs actual duration analysis
-- Course-linked session categorization
 - Productivity metrics and insights
-- Historical session data visualization
 
 #### 📊 **Advanced Grade Calculator**
 - Weighted grade categories with custom weights
-- Real-time GPA calculations
 - What-if scenario planning for final grades
-- Grade trend analysis over time
 - Export functionality for academic records
 
 #### 📱 **Modern Mobile UI/UX**
@@ -117,6 +113,10 @@ Study Buddy Cloud is a complete evolution of the original Study Buddy app, now d
 - Accessibility features compliance
 
 ### 🤖 AI Assistant Module
+-  **Multi-conversation support** - Create and manage multiple chat sessions
+- **Persistent chat history** - All conversations saved to MySQL database
+- **Auto-generated titles** - AI automatically names your chats based on content
+- **Manual title editing** - Rename chats anytime with tap-to-edit
 
 #### 💬 **Conversational Intelligence**
 - **Multi-conversation Management** - Create unlimited chat sessions
@@ -656,13 +656,7 @@ CREATE TABLE attachments (
    - Verify email if required
    - Login automatically
 
-2. **Setting Up Courses**
-   - Navigate to "Courses" tab
-   - Tap the "+" button
-   - Enter course details (name, code, instructor, semester)
-   - Save to create the course
-
-3. **Managing Assignments**
+2. **Managing Assignments**
    - Select a course or go to "Assignments" tab
    - Tap "Add Assignment"
    - Set priority, due date, and description
@@ -715,9 +709,6 @@ CREATE TABLE attachments (
 
 3. **End a Session**
    - Tap "End Session"
-   - Review actual vs planned duration
-   - Add session summary
-   - Data automatically saves for analytics
 
 ### Grade Calculator
 
