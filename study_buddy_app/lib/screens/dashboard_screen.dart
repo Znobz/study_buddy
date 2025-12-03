@@ -8,8 +8,13 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    print('🔍 DASHBOARD DEBUG - Route arguments: $args');
     final userId = args?['userId'] ?? user?['user_id'] ?? 1;
     final firstName = args?['firstName'] ?? user?['first_name'] ?? 'User';
+
+    print('🔍 DASHBOARD DEBUG - Extracted userId: $userId');
+    print('🔍 DASHBOARD DEBUG - Extracted firstName: $firstName');
+    print('🔍 DASHBOARD DEBUG - user prop passed to widget: $user');
 
     return Scaffold(
       appBar: AppBar(
@@ -72,16 +77,16 @@ class DashboardScreen extends StatelessWidget {
                 arguments: {'userId': userId},
               ),
             ),
-            _DashboardCard(
-              title: 'Profile',
-              icon: Icons.person,
-              color: Colors.orange,
-              onTap: () => Navigator.pushNamed(
-                context,
-                '/profile',
-                arguments: {'userId': userId},
-              ),
-            ),
+            // _DashboardCard( we'll work on this later, or not
+            //   title: 'Profile',
+            //   icon: Icons.person,
+            //   color: Colors.orange,
+            //   onTap: () => Navigator.pushNamed(
+            //     context,
+            //     '/profile',
+            //     arguments: {'userId': userId},
+            //   ),
+            // ),
           ],
         ),
       ),

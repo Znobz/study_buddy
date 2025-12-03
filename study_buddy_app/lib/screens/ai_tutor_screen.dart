@@ -65,16 +65,16 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     } catch (e) {
       print('❌ Image picker error: $e');
       if (mounted) {
-        String errorMsg = 'Failed to load chat';
+        String errorMsg = 'Failed to pick images';
         if (e.toString().contains('timeout') || e.toString().contains('TimeoutException')) {
           errorMsg = 'Connection timeout. Please check if the server is running.';
         } else if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
           errorMsg = 'Cannot connect to server. Please check your connection.';
         } else {
-          errorMsg = 'Failed to load chat: ${e.toString()}';
+          errorMsg = 'Failed to pick images: ${e.toString()}';
         }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick images: $e')),
+          SnackBar(content: Text(errorMsg)),
         );
       }
     }
@@ -252,6 +252,16 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       print('❌ Send message error: $e');
       if (mounted) {
         setState(() => _messages.removeWhere((m) => m['_tmp'] == true));
+
+        String errorMsg = 'Failed to send message';
+        if (e.toString().contains('timeout') || e.toString().contains('TimeoutException')) {
+          errorMsg = 'Connection timeout. Please check if the server is running.';
+        } else if (e.toString().contains('SocketException') || e.toString().contains('Failed host lookup')) {
+          errorMsg = 'Cannot connect to server. Please check your connection.';
+        } else {
+          errorMsg = 'Failed to send message: ${e.toString()}';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMsg), duration: const Duration(seconds: 5)),
         );

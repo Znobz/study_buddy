@@ -8,13 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:http_parser/http_parser.dart';
 
 class ApiService {
+  // ✅ Updated to use your Google Cloud Run URL
+  static const String _cloudRunUrl = 'https://study-buddy-backend-851589529788.us-central1.run.app';
+
   ApiService()
-      : baseOrigin = Platform.isAndroid
-            ? "http://10.0.2.2:3000"
-            : "http://localhost:3000",
-        baseUrl = Platform.isAndroid
-            ? "http://10.0.2.2:3000/api"
-            : "http://localhost:3000/api";
+      : baseOrigin = _cloudRunUrl,
+        baseUrl = '$_cloudRunUrl/api';
 
   final String baseOrigin;
   final String baseUrl;
@@ -43,9 +42,7 @@ class ApiService {
     if (authToken == null) return false;
 
     try {
-      final validateUrl = Platform.isAndroid 
-          ? "http://10.0.2.2:3000/api/auth/validate"
-          : "http://localhost:3000/api/auth/validate";
+      final validateUrl = '$_cloudRunUrl/api/auth/validate';
       final response = await http.get(
         Uri.parse(validateUrl),
         headers: {'Authorization': 'Bearer $authToken'},
@@ -66,7 +63,7 @@ class ApiService {
 
 
   Future<Map<String, dynamic>?> postRegister(
-    String first, String last, String email, String password) async {
+      String first, String last, String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/register'),
@@ -173,14 +170,14 @@ class ApiService {
     return null;
   }
 
-  Future<bool> addAssignment(
-    String title,
-    String description,
-    String dueDate, {
-    String priority = 'medium',
-    String status = 'pending',
-    PlatformFile? attachment,
-  }) async {
+  Future<Map<String, dynamic>?> addAssignment(
+      String title,
+      String description,
+      String dueDate, {
+        String priority = 'medium',
+        String status = 'pending',
+        PlatformFile? attachment,
+      }) async {
     try {
       if (attachment != null) {
         final request = http.MultipartRequest(
@@ -208,36 +205,36 @@ class ApiService {
         final body = await response.stream.bytesToString();
 
         if (response.statusCode == 201 || response.statusCode == 200) {
-          return true;
+          return jsonDecode(body) as Map<String, dynamic>;
         }
         print('Add assignment failed: ${response.statusCode} - $body');
-        return false;
+        return null;
       }
 
       final response = await http
           .post(
-            Uri.parse('$baseUrl/assignments'),
-            headers: _headers(),
-            body: jsonEncode({
-              'title': title,
-              'description': description,
-              'due_date': dueDate,
-              'priority': priority,
-              'status': status,
-            }),
-          )
+        Uri.parse('$baseUrl/assignments'),
+        headers: _headers(),
+        body: jsonEncode({
+          'title': title,
+          'description': description,
+          'due_date': dueDate,
+          'priority': priority,
+          'status': status,
+        }),
+      )
           .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              throw TimeoutException('Request timed out');
-            },
-          );
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Request timed out');
+        },
+      );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        return true;
+        return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
         print('Add assignment failed: ${response.statusCode} - ${response.body}');
-        return false;
+        return null;
       }
     } catch (e, stackTrace) {
       print('❌ Error adding assignment: $e');
@@ -249,19 +246,19 @@ class ApiService {
       } else if (e is HttpException) {
         print('📡 HTTP error');
       }
-      return false;
+      return null;
     }
   }
 
   Future<bool> updateAssignment(
-    int id,
-    String title,
-    String description,
-    String dueDate, {
-    String? priority,
-    String status = 'pending',
-    PlatformFile? attachment,
-  }) async {
+      int id,
+      String title,
+      String description,
+      String dueDate, {
+        String? priority,
+        String status = 'pending',
+        PlatformFile? attachment,
+      }) async {
     try {
       print('📝 Updating assignment: $id (Priority: ${priority ?? 'unchanged'})');
 
@@ -309,17 +306,17 @@ class ApiService {
 
       final response = await http
           .put(
-            Uri.parse('$baseUrl/assignments/$id'),
-            headers: _headers(),
-            body: jsonEncode(body),
-          )
+        Uri.parse('$baseUrl/assignments/$id'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      )
           .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              print('❌ Update assignment timed out after 10 seconds');
-              throw TimeoutException('Request timed out');
-            },
-          );
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('❌ Update assignment timed out after 10 seconds');
+          throw TimeoutException('Request timed out');
+        },
+      );
 
       print('📝 Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
@@ -398,28 +395,144 @@ class ApiService {
     }
   }
 
+  /// ===== NOTIFICATION METHODS =====
+
+  /// Create new notification in database
+  Future<Map<String, dynamic>?> createNotification({
+    required int assignmentId,
+    required String title,
+    required String message,
+    required DateTime scheduledTime,
+    required String status,
+  }) async {
+    try {
+      // Get current user ID (you might need to adjust this based on your auth system)
+      final userId = await getUserId(); // Implement this based on your auth
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/notifications'),
+        headers: _headers(), // ✅ Fixed: Use existing _headers() method
+        body: json.encode({
+          'assignmentId': assignmentId,
+          'userId': userId,
+          'title': title,
+          'message': message,
+          'scheduledTime': scheduledTime.toIso8601String(),
+          'status': status,
+          'notificationType': 'assignment_reminder',
+        }),
+      ).timeout(Duration(seconds: 10));
+
+      print('📤 Create notification response: ${response.statusCode}');
+
+      if (response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        print('❌ Failed to create notification: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('❌ Error creating notification: $e');
+      return null;
+    }
+  }
+
+  /// Get user's notifications
+  Future<List<Map<String, dynamic>>?> getUserNotifications(int userId, {String? status}) async {
+    try {
+      var url = '$baseUrl/notifications/$userId';
+      if (status != null) {
+        url += '?status=$status';
+      }
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: _headers(), // ✅ Fixed: Use existing _headers() method
+      ).timeout(Duration(seconds: 10));
+
+      print('📤 Get notifications response: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.cast<Map<String, dynamic>>();
+      } else {
+        print('❌ Failed to get notifications: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('❌ Error getting notifications: $e');
+      return null;
+    }
+  }
+
+  /// Update notification status
+  Future<bool> updateNotificationStatus(int notificationId, String status) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/notifications/$notificationId/status'),
+        headers: _headers(), // ✅ Fixed: Use existing _headers() method
+        body: json.encode({'status': status}),
+      ).timeout(Duration(seconds: 10));
+
+      print('📤 Update notification status response: ${response.statusCode}');
+      return response.statusCode == 200;
+    } catch (e) {
+      print('❌ Error updating notification status: $e');
+      return false;
+    }
+  }
+
+  /// Delete notification
+  Future<bool> deleteNotification(int notificationId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/notifications/$notificationId'),
+        headers: _headers(), // ✅ Fixed: Use existing _headers() method
+      ).timeout(Duration(seconds: 10));
+
+      print('📤 Delete notification response: ${response.statusCode}');
+      return response.statusCode == 200;
+    } catch (e) {
+      print('❌ Error deleting notification: $e');
+      return false;
+    }
+  }
+
+  /// Get current user ID from token/preferences
+  Future<int> getUserId() async {
+    try {
+      // This depends on your auth implementation
+      // You might store userId in SharedPreferences or decode from token
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getInt('user_id') ?? 1; // Fallback to 1
+    } catch (e) {
+      print('❌ Error getting user ID: $e');
+      return 1; // Fallback
+    }
+  }
+
   // ========== AI CHATS ==========
 
-Future<Map<String, dynamic>?> createChat({String? title}) async {
-  try {
-    print('Creating chat with title: $title');
-    final res = await http.post(
-      Uri.parse('$baseUrl/ai/chats'),
-      headers: _headers(),
-      body: jsonEncode({'title': title ?? 'New Chat'}),
-    );
+  Future<Map<String, dynamic>?> createChat({String? title}) async {
+    try {
+      print('Creating chat with title: $title');
+      final res = await http.post(
+        Uri.parse('$baseUrl/ai/chats'),
+        headers: _headers(),
+        body: jsonEncode({'title': title ?? 'New Chat'}),
+      );
 
-    print('Create chat response: ${res.statusCode} ${res.body}');
+      print('Create chat response: ${res.statusCode} ${res.body}');
 
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      return jsonDecode(res.body);
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return jsonDecode(res.body);
+      }
+      return null;
+    } catch (e) {
+      print('createChat error: $e');
+      return null;
     }
-    return null;
-  } catch (e) {
-    print('createChat error: $e');
-    return null;
   }
-}
 
   Future<List<dynamic>> listChats() async {
     final url = '$baseUrl/ai/chats';
@@ -449,40 +562,40 @@ Future<Map<String, dynamic>?> createChat({String? title}) async {
     }
   }
 
-Future<Map<String, dynamic>?> getChatDetails(int chatId) async {
-  try {
-    print('📖 Fetching chat details for chatId: $chatId');
-    final res = await http.get(
-      Uri.parse('$baseUrl/ai/chats/$chatId'),
-      headers: _headers(),
-    );
+  Future<Map<String, dynamic>?> getChatDetails(int chatId) async {
+    try {
+      print('📖 Fetching chat details for chatId: $chatId');
+      final res = await http.get(
+        Uri.parse('$baseUrl/ai/chats/$chatId'),
+        headers: _headers(),
+      );
 
-    if (res.statusCode == 200) {
-      final data = jsonDecode(res.body);
-      print('✅ Chat details fetched: $data');
-      return data;
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        print('✅ Chat details fetched: $data');
+        return data;
+      }
+      print('❌ Failed to fetch chat details: ${res.statusCode}');
+      return null;
+    } catch (e) {
+      print('getChatDetails error: $e');
+      return null;
     }
-    print('❌ Failed to fetch chat details: ${res.statusCode}');
-    return null;
-  } catch (e) {
-    print('getChatDetails error: $e');
-    return null;
   }
-}
 
-Future<bool> archiveChat(int chatId, bool archive) async {
-  try {
-    final res = await http.post(
-      Uri.parse('$baseUrl/ai/chats/$chatId/archive'),
-      headers: _headers(),
-      body: jsonEncode({'archive': archive}),
-    );
-    return res.statusCode >= 200 && res.statusCode < 300;
-  } catch (e) {
-    print('archiveChat error: $e');
-    return false;
+  Future<bool> archiveChat(int chatId, bool archive) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/ai/chats/$chatId/archive'),
+        headers: _headers(),
+        body: jsonEncode({'archive': archive}),
+      );
+      return res.statusCode >= 200 && res.statusCode < 300;
+    } catch (e) {
+      print('archiveChat error: $e');
+      return false;
+    }
   }
-}
 
 // Update chat title (manual edit)
   Future<bool> updateChatTitle(int chatId, String newTitle) async {
@@ -536,59 +649,59 @@ Future<bool> archiveChat(int chatId, bool archive) async {
 
 // ========== MESSAGES ==========
 
-Future<Map<String, dynamic>?> listChatMessages(int chatId, {int limit = 30, String? cursor}) async {
-  try {
-    final qp = <String, String>{'limit': '$limit'};
-    if (cursor != null) qp['cursor'] = cursor;
-    final uri = Uri.parse('$baseUrl/ai/chats/$chatId/messages').replace(queryParameters: qp);
+  Future<Map<String, dynamic>?> listChatMessages(int chatId, {int limit = 30, String? cursor}) async {
+    try {
+      final qp = <String, String>{'limit': '$limit'};
+      if (cursor != null) qp['cursor'] = cursor;
+      final uri = Uri.parse('$baseUrl/ai/chats/$chatId/messages').replace(queryParameters: qp);
 
-    final res = await http.get(uri, headers: _headers());
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      return jsonDecode(res.body) as Map<String, dynamic>;
+      final res = await http.get(uri, headers: _headers());
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      }
+      print('listChatMessages failed: ${res.statusCode} ${res.body}');
+    } catch (e) {
+      print('listChatMessages error: $e');
     }
-    print('listChatMessages failed: ${res.statusCode} ${res.body}');
-  } catch (e) {
-    print('listChatMessages error: $e');
+    return null;
   }
-  return null;
-}
 
-Future<Map<String, dynamic>?> sendChatMessage(
-  int chatId,
-  String text, {
-  List<int>? attachmentIds,
-  bool researchMode = false,
-}) async {
-  try {
-    final Map<String, dynamic> body = {'text': text};
-    if (attachmentIds != null && attachmentIds.isNotEmpty) {
-      body['attachmentIds'] = attachmentIds;
+  Future<Map<String, dynamic>?> sendChatMessage(
+      int chatId,
+      String text, {
+        List<int>? attachmentIds,
+        bool researchMode = false,
+      }) async {
+    try {
+      final Map<String, dynamic> body = {'text': text};
+      if (attachmentIds != null && attachmentIds.isNotEmpty) {
+        body['attachmentIds'] = attachmentIds;
+      }
+      if (researchMode) {
+        body['researchMode'] = true;
+      }
+
+      print('🚀 Sending message to chatId: $chatId');
+      print('🚀 Body: $body');
+      print('🔬 Research mode: $researchMode');
+
+      final res = await http.post(
+        Uri.parse('$baseUrl/ai/chats/$chatId/messages'),
+        headers: _headers(),
+        body: jsonEncode(body),
+      );
+
+      print('🚀 Response status: ${res.statusCode}');
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      }
+      print('sendChatMessage failed: ${res.statusCode} ${res.body}');
+    } catch (e) {
+      print('sendChatMessage error: $e');
     }
-    if (researchMode) {
-      body['researchMode'] = true;
-    }
-
-    print('🚀 Sending message to chatId: $chatId');
-    print('🚀 Body: $body');
-    print('🔬 Research mode: $researchMode');
-
-    final res = await http.post(
-      Uri.parse('$baseUrl/ai/chats/$chatId/messages'),
-      headers: _headers(),
-      body: jsonEncode(body),
-    );
-
-    print('🚀 Response status: ${res.statusCode}');
-
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      return jsonDecode(res.body) as Map<String, dynamic>;
-    }
-    print('sendChatMessage failed: ${res.statusCode} ${res.body}');
-  } catch (e) {
-    print('sendChatMessage error: $e');
+    return null;
   }
-  return null;
-}
 
 // ========== UPLOADS ==========
 
@@ -710,129 +823,153 @@ Future<Map<String, dynamic>?> sendChatMessage(
     }
   }
 
-Future<bool> deleteAttachment(int attachmentId) async {
-  try {
-    final res = await http.delete(
-      Uri.parse('$baseUrl/ai/uploads/$attachmentId'),
-      headers: _headers(),
-    );
-    return res.statusCode >= 200 && res.statusCode < 300;
-  } catch (e) {
-    print('deleteAttachment error: $e');
-    return false;
+  Future<bool> deleteAttachment(int attachmentId) async {
+    try {
+      final res = await http.delete(
+        Uri.parse('$baseUrl/ai/uploads/$attachmentId'),
+        headers: _headers(),
+      );
+      return res.statusCode >= 200 && res.statusCode < 300;
+    } catch (e) {
+      print('deleteAttachment error: $e');
+      return false;
+    }
   }
-}
 
 // ========== HELPER METHODS ==========
 
-// Helper to get newest chat ID (for placeholder resolution)
-Future<int?> getNewestChatId() async {
-  try {
-    final chats = await listChats();
-    if (chats != null && chats.isNotEmpty) {
-      return chats.first['id'] as int?;
+  // Helper method to create multipart file from PlatformFile
+  Future<http.MultipartFile> _multipartFromPlatformFile(String field, PlatformFile file) async {
+    if (file.path != null) {
+      // Use file path if available
+      return await http.MultipartFile.fromPath(field, file.path!);
+    } else if (file.bytes != null) {
+      // Use bytes if path is not available (web platform)
+      return http.MultipartFile.fromBytes(
+        field,
+        file.bytes!,
+        filename: file.name,
+      );
+    } else {
+      throw Exception('PlatformFile has neither path nor bytes');
     }
-    return null;
-  } catch (e) {
-    print('getNewestChatId error: $e');
-    return null;
   }
-}
+
+  // Build attachment URL for relative paths
+  String buildAttachmentUrl(String relativePath) {
+    // Extract just the filename from paths like "assignments/filename.pdf"
+    final filename = relativePath.split('/').last;
+    return '$baseUrl/assignments/$filename';  // baseUrl + assignments + filename
+  }
+
+// Helper to get newest chat ID (for placeholder resolution)
+  Future<int?> getNewestChatId() async {
+    try {
+      final chats = await listChats();
+      if (chats != null && chats.isNotEmpty) {
+        return chats.first['id'] as int?;
+      }
+      return null;
+    } catch (e) {
+      print('getNewestChatId error: $e');
+      return null;
+    }
+  }
 
 // ========== WRAPPER METHODS (for ai_tutor_screen.dart compatibility) ==========
 
 // Wrapper for getChatDetails
-Future<Map<String, dynamic>?> getChatById(int chatId) async {
-  return await getChatDetails(chatId);
-}
+  Future<Map<String, dynamic>?> getChatById(int chatId) async {
+    return await getChatDetails(chatId);
+  }
 
 // Wrapper for listChatMessages
-Future<Map<String, dynamic>?> listMessages(int chatId, {int? cursor}) async {
-  return await listChatMessages(chatId, limit: 50, cursor: cursor?.toString());
-}
+  Future<Map<String, dynamic>?> listMessages(int chatId, {int? cursor}) async {
+    return await listChatMessages(chatId, limit: 50, cursor: cursor?.toString());
+  }
 
 // Wrapper for sendChatMessage
-Future<Map<String, dynamic>?> sendMessage(
-  int chatId,
-  String text, {
-  List<int> attachmentIds = const [],
-  bool researchMode = false,
-}) async {
-  return await sendChatMessage(
-    chatId,
-    text,
-    attachmentIds: attachmentIds.isEmpty ? null : attachmentIds,
-    researchMode: researchMode,
-  );
-}
+  Future<Map<String, dynamic>?> sendMessage(
+      int chatId,
+      String text, {
+        List<int> attachmentIds = const [],
+        bool researchMode = false,
+      }) async {
+    return await sendChatMessage(
+      chatId,
+      text,
+      attachmentIds: attachmentIds.isEmpty ? null : attachmentIds,
+      researchMode: researchMode,
+    );
+  }
 
 // Wrapper for uploadAttachment
-Future<Map<String, dynamic>?> uploadFile(String filePath, int conversationId) async {
-  return await uploadAttachment(filePath, conversationId);
-}
+  Future<Map<String, dynamic>?> uploadFile(String filePath, int conversationId) async {
+    return await uploadAttachment(filePath, conversationId);
+  }
 
 // ========== LEGACY/DEPRECATED METHODS ==========
 
-@Deprecated('Use createChat and sendChatMessage instead')
-Future<int?> _getOrCreateLegacyChatId() async {
-  final prefs = await SharedPreferences.getInstance();
-  var cid = prefs.getInt('last_ai_conversation_id');
-  if (cid == null) {
-    final conv = await createChat(title: 'Legacy Chat');
-    if (conv == null) return null;
-    cid = conv['id'] as int;
-    await prefs.setInt('last_ai_conversation_id', cid);
-  }
-  return cid;
-}
-
-@Deprecated('Use sendChatMessage instead')
-Future<String?> askTutor(String question) async {
-  try {
-    final cid = await _getOrCreateLegacyChatId();
-    if (cid == null) return null;
-
-    final res = await sendChatMessage(cid, question);
-    final asst = (res?['assistant'] as Map<String, dynamic>?);
-    return asst?['text'] as String?;
-  } catch (e) {
-    print('askTutor shim error: $e');
-    return null;
-  }
-}
-
-@Deprecated('Use listChats / listChatMessages instead')
-Future<List<dynamic>?> getChatHistory(int userId) async {
-  try {
+  @Deprecated('Use createChat and sendChatMessage instead')
+  Future<int?> _getOrCreateLegacyChatId() async {
     final prefs = await SharedPreferences.getInstance();
-    final cid = prefs.getInt('last_ai_conversation_id');
-    if (cid == null) return <dynamic>[];
-
-    final page = await listChatMessages(cid, limit: 100);
-    final items = (page?['items'] as List? ?? []).cast<Map<String, dynamic>>();
-
-    final List<Map<String, dynamic>> out = [];
-    final seq = items.reversed.toList();
-
-    for (int i = 0; i < seq.length - 1; i++) {
-      final a = seq[i], b = seq[i + 1];
-      if (a['role'] == 'user' && b['role'] == 'assistant') {
-        out.add({
-          'chat_id': cid,
-          'user_id': userId,
-          'session_id': null,
-          'question': a['text'],
-          'ai_response': b['text'],
-          'timestamp': b['created_at'],
-        });
-        i++;
-      }
+    var cid = prefs.getInt('last_ai_conversation_id');
+    if (cid == null) {
+      final conv = await createChat(title: 'Legacy Chat');
+      if (conv == null) return null;
+      cid = conv['id'] as int;
+      await prefs.setInt('last_ai_conversation_id', cid);
     }
-    return out;
-  } catch (e) {
-    print('getChatHistory shim error: $e');
-    return <dynamic>[];
+    return cid;
   }
-}
+
+  @Deprecated('Use sendChatMessage instead')
+  Future<String?> askTutor(String question) async {
+    try {
+      final cid = await _getOrCreateLegacyChatId();
+      if (cid == null) return null;
+
+      final res = await sendChatMessage(cid, question);
+      final asst = (res?['assistant'] as Map<String, dynamic>?);
+      return asst?['text'] as String?;
+    } catch (e) {
+      print('askTutor shim error: $e');
+      return null;
+    }
+  }
+
+  @Deprecated('Use listChats / listChatMessages instead')
+  Future<List<dynamic>?> getChatHistory(int userId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cid = prefs.getInt('last_ai_conversation_id');
+      if (cid == null) return <dynamic>[];
+
+      final page = await listChatMessages(cid, limit: 100);
+      final items = (page?['items'] as List? ?? []).cast<Map<String, dynamic>>();
+
+      final List<Map<String, dynamic>> out = [];
+      final seq = items.reversed.toList();
+
+      for (int i = 0; i < seq.length - 1; i++) {
+        final a = seq[i], b = seq[i + 1];
+        if (a['role'] == 'user' && b['role'] == 'assistant') {
+          out.add({
+            'chat_id': cid,
+            'user_id': userId,
+            'session_id': null,
+            'question': a['text'],
+            'ai_response': b['text'],
+            'timestamp': b['created_at'],
+          });
+          i++;
+        }
+      }
+      return out;
+    } catch (e) {
+      print('getChatHistory shim error: $e');
+      return <dynamic>[];
+    }
+  }
 
 }

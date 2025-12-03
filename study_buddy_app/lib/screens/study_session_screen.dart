@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import 'dart:async';
 import 'package:flutter/widgets.dart';
 import '../services/session_service.dart';
 
 class StudySessionScreen extends StatefulWidget {
-  const StudySessionScreen({super.key});
+  const StudySessionScreen({Key? key}) : super(key: key);
 
   @override
   State<StudySessionScreen> createState() => _StudySessionScreenState();
@@ -22,11 +23,40 @@ class _StudySessionScreenState extends State<StudySessionScreen>
   int totalFocus = 0;
   int totalBreak = 0;
 
+  int _streak = 0;
+  String _award = "";
+  String _breakMessage = "";
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadStats();
+    _loadStreak();
+  }
+
+  Future<void> _loadStreak() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastDate = prefs.getString('lastStudyDate');
+    final today = DateTime.now();
+
+    if (lastDate != null) {
+      final last = DateTime.parse(lastDate);
+      final diff = today.difference(last).inDays;
+      if (diff == 1) {
+        _streak = (prefs.getInt('streak') ?? 0) + 1;
+      } else if (diff > 1) {
+        _streak = 1;
+      } else {
+        _streak = prefs.getInt('streak') ?? 1;
+      }
+    } else {
+      _streak = 1;
+    }
+
+    await prefs.setInt('streak', _streak);
+    await prefs.setString('lastStudyDate', today.toIso8601String());
+    setState(() {});
   }
 
   Future<void> _loadStats() async {
@@ -55,13 +85,27 @@ class _StudySessionScreenState extends State<StudySessionScreen>
   void _startTimer() {
     setState(() => isRunning = true);
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() {
-        if (isBreak) {
-          breakSeconds++;
-        } else {
-          seconds++;
+      if (!mounted) return;
+      if (isBreak) {
+        setState(() => breakSeconds++);
+      } else {
+        setState(() => seconds++);
+
+        // 🔹 Break encouragement AFTER 20 minutes (20*60 = 1200 seconds)
+        if (seconds == 1200) {
+          setState(() {
+            _breakMessage =
+            "⏰ You've been studying for 20 minutes. Time for a quick break!";
+          });
         }
-      });
+
+        // 🔹 Award AFTER 40 minutes (40*60 = 2400 seconds)
+        if (seconds == 2400) {
+          setState(() {
+            _award = "🏅 You studied 40 minutes — Achievement unlocked!";
+          });
+        }
+      }
     });
   }
 
@@ -81,10 +125,13 @@ class _StudySessionScreenState extends State<StudySessionScreen>
     _pauseTimer();
     await _sessionService.saveSessionStats(seconds ~/ 60, breakSeconds ~/ 60);
     await _loadStats();
+    await _loadStreak();
     setState(() {
       seconds = 0;
       breakSeconds = 0;
       isBreak = false;
+      _award = "";
+      _breakMessage = "";
     });
   }
 
@@ -97,7 +144,7 @@ class _StudySessionScreenState extends State<StudySessionScreen>
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF121212), // dark background
+      color: const Color(0xFF121212),
       child: SafeArea(
         child: Center(
           child: Padding(
@@ -112,15 +159,76 @@ class _StudySessionScreenState extends State<StudySessionScreen>
                       color: Color(0xFFFFFFFF),
                       fontWeight: FontWeight.w600),
                 ),
+                const SizedBox(height: 10),
+                Text(
+                  "🔥 $_streak-day streak",
+                  style:
+                  const TextStyle(fontSize: 16, color: Color(0xFFAAAAAA)),
+                ),
                 const SizedBox(height: 20),
                 Text(
                   _formatTime(isBreak ? breakSeconds : seconds),
                   style: const TextStyle(
                     fontSize: 64,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF00FFAA), // minty timer color
+                    color: Color(0xFF00FFAA),
                   ),
                 ),
+
+                if (_breakMessage.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2E2E2E),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          _breakMessage,
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 14),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: () => setState(() => _breakMessage = ""),
+                          child: const Text("Dismiss",
+                              style: TextStyle(color: Colors.tealAccent)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                if (_award.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E3A2D),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          _award,
+                          style: const TextStyle(
+                              color: Colors.amberAccent, fontSize: 14),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: () => setState(() => _award = ""),
+                          child: const Text("Dismiss",
+                              style: TextStyle(color: Colors.tealAccent)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -147,8 +255,8 @@ class _StudySessionScreenState extends State<StudySessionScreen>
                 const SizedBox(height: 40),
                 Text(
                   "Total Focus: ${totalFocus}m  •  Total Break: ${totalBreak}m",
-                  style: const TextStyle(
-                      color: Color(0xFFAAAAAA), fontSize: 16),
+                  style:
+                  const TextStyle(color: Color(0xFFAAAAAA), fontSize: 16),
                 ),
               ],
             ),
@@ -188,4 +296,3 @@ class _SimpleButton extends StatelessWidget {
     );
   }
 }
-

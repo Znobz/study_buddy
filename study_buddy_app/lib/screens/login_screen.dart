@@ -30,6 +30,9 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text.trim(),
       );
 
+      // 🔍 DEBUG: Print the full API response
+      print('🔍 LOGIN DEBUG - Full API response: $data');
+
       setState(() => _isLoading = false);
 
       if (data != null) {
@@ -37,14 +40,25 @@ class _LoginScreenState extends State<LoginScreen> {
           setState(() => _errorMessage = data['error']);
         } else if (data['token'] != null) {
           final user = data['user'];
+
+          // 🔍 DEBUG: Print the user object specifically
+          print('🔍 LOGIN DEBUG - User object: $user');
+          print('🔍 LOGIN DEBUG - User first_name: ${user?['first_name']}');
+
           final userId = user['user_id'];
+          final firstName = user['first_name'];
+
+          // 🔍 DEBUG: Print what we're about to pass to dashboard
+          print('🔍 LOGIN DEBUG - About to navigate with userId: $userId, firstName: $firstName');
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('✅ Welcome back, ${user['first_name']}!')),
           );
 
-          // Navigate to dashboard or home
-          Navigator.pushReplacementNamed(context, '/dashboard', arguments: {'userId': userId});
+          Navigator.pushReplacementNamed(context, '/dashboard', arguments: {
+            'userId': userId,
+            'firstName': firstName, // Use the extracted variable
+          });
         } else {
           setState(() => _errorMessage = 'Invalid email or password.');
         }
@@ -56,6 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
         _errorMessage = 'Connection failed. Please check if the server is running and database is set up.';
       });
+      print('🔍 LOGIN ERROR: $e');
     }
   }
 

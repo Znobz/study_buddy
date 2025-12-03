@@ -108,19 +108,18 @@ dependencies:
   # State management and utilities
   provider: ^6.1.0
   intl: ^0.19.0
-  file_picker: ^8.0.0+1
   mime: ^1.0.4
   url_launcher: ^6.3.0
   http_parser: ^4.0.2
   path: ^1.8.3
   flutter_markdown: ^0.7.4
 
+  # Notifications and scheduling
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.2
 
   # Icons for iOS-style UI
   cupertino_icons: ^1.0.8
-  flutter_local_notifications: 17.2.2
-  timezone: 0.9.2
-  url_launcher: ^6.3.0
 
 # 🧰 Developer dependencies
 dev_dependencies:
