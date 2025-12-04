@@ -1,9 +1,10 @@
-# Study Buddy - AI Assistant Module
+# 📚 Study Buddy Cloud - Full-Stack Academic Assistant
 
-> 🤖 An intelligent AI tutor powered by OpenAI GPT-4o-mini, featuring multi-modal conversations, web research, and image analysis.
+> 🚀 A cloud-native mobile productivity app helping students manage courses, assignments, study sessions, grades, and AI tutoring. Now powered by **Google Cloud Platform** with global accessibility.
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue.svg)](https://flutter.dev)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org)
+[![Google Cloud](https://img.shields.io/badge/Google%20Cloud-4285F4?style=flat&logo=google-cloud&logoColor=white)](https://cloud.google.com)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -11,225 +12,510 @@
 
 ## 📋 Table of Contents
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Setup Instructions](#-setup-instructions)
-- [API Endpoints](#-api-endpoints)
-- [Usage Guide](#-usage-guide)
-- [Database Schema](#-database-schema)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
+- [🌟 What's New in Cloud Branch](#-whats-new-in-cloud-branch)
+- [📖 Overview](#-overview)
+- [✨ Features](#-features)
+  - [🎓 Core App Features](#-core-app-features)
+  - [🤖 AI Assistant Module](#-ai-assistant-module)
+- [🏗️ Cloud Architecture](#️-cloud-architecture)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📁 Project Structure](#-project-structure)
+- [🚀 Deployment Guide](#-deployment-guide)
+  - [Google Cloud SQL Setup](#google-cloud-sql-setup)
+  - [Google Cloud Run Deployment](#google-cloud-run-deployment)
+  - [Frontend Configuration](#frontend-configuration)
+- [🔌 API Endpoints](#-api-endpoints)
+- [🗄️ Database Schema](#️-database-schema)
+- [🧭 Usage Guide](#-usage-guide)
+- [💰 Cost Analysis](#-cost-analysis)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+
+---
+
+## 🌟 What's New in Cloud Branch
+
+### ☁️ **Fully Cloud-Native Architecture**
+- **Google Cloud SQL** - Production-ready MySQL database with automatic backups
+- **Google Cloud Run** - Serverless backend hosting with auto-scaling
+- **Global Accessibility** - Works from anywhere, no more localhost limitations
+- **Team Collaboration** - Shared backend for seamless team development
+
+### 🚀 **Production-Ready Deployment**
+- **Single-Command Deployment** - One `gcloud` command deploys the entire backend
+- **Environment Variables** - Secure configuration management
+- **Docker Containerization** - Consistent deployment across environments
+- **SSL/HTTPS** - Secure communication by default
+
+### 🔧 **Development Improvements**
+- **No More Local Backend** - Just run `flutter run`, no need for `npm start`
+- **Real Device Testing** - Works on physical devices out of the box
+- **Platform Agnostic** - Same backend URL for Android, iOS, and web
+
+---
+
+## 📖 Overview
+
+Study Buddy Cloud is a complete evolution of the original Study Buddy app, now deployed on Google Cloud Platform for production-scale reliability and global accessibility. The app integrates comprehensive academic management with an intelligent AI tutor powered by OpenAI GPT-4o-mini.
+
+**Core Capabilities:**
+- 📚 Course and assignment management
+- ⏱️ Study session tracking with analytics
+- 📊 Advanced grade calculation with what-if scenarios
+- 🤖 Multi-modal AI tutoring (text, images, web research)
+- 🔐 Secure JWT authentication
+- ☁️ Cloud-native architecture with 99.9% uptime
 
 ---
 
 ## ✨ Features
 
-### 🤖 AI Chat
-- ✅ **Multi-conversation support** - Create and manage multiple chat sessions
-- ✅ **Persistent chat history** - All conversations saved to MySQL database
-- ✅ **Auto-generated titles** - AI automatically names your chats based on content
-- ✅ **Manual title editing** - Rename chats anytime with tap-to-edit
+### 🎓 Core App Features
 
-### 🖼️ Image Understanding
-- ✅ **Multiple image upload** - Send multiple images in a single message
-- ✅ **Image analysis** - AI can describe, analyze, and answer questions about images
-- ✅ **Thumbnail preview** - See uploaded images before sending
-- ✅ **Full-screen zoom** - Tap images to view in full screen with pinch-to-zoom
+#### 👤 **Authentication & Security**
+- Secure user registration and login
+- JWT-based authentication with refresh tokens
+- Password hashing with bcrypt
+- Persistent sessions via SharedPreferences
+- Role-based access control
 
-### 🔬 Research Mode
-- ✅ **Web search integration** - AI searches the web using Tavily API
-- ✅ **Source citations** - Every researched answer includes clickable sources
-- ✅ **Real-time information** - Get current data beyond AI's knowledge cutoff
+#### 📚 **Course Management**
+- Create, edit, and delete courses
+- Instructor and semester tracking
+- Course-specific assignment filtering
+- Academic level categorization
+- Semester-based organization
 
-### 💅 Modern UI/UX
-- ✅ **Markdown formatting** - Rich text with **bold**, *italic*, lists, `code blocks`
-- ✅ **Optimistic updates** - Instant UI feedback while waiting for server
-- ✅ **Swipe to delete** - Delete chats with confirmation dialog
-- ✅ **Loading states** - Clear indicators for ongoing operations
-- ✅ **Error handling** - Graceful fallbacks with user-friendly messages
+#### 📝 **Assignment Tracking**
+- Comprehensive assignment lifecycle management
+- Priority levels (Low, Medium, High, Critical)
+- Status tracking: Not Started → In Progress → Completed
+- Due date management with smart notifications
+- Rich text descriptions and file attachments
+- Assignment upload and download functionality
+
+#### ⏱️ **Study Session Analytics**
+- Start/stop time tracking with precision
+- Planned vs actual duration analysis
+- Productivity metrics and insights
+
+#### 📊 **Advanced Grade Calculator**
+- Weighted grade categories with custom weights
+- What-if scenario planning for final grades
+- Export functionality for academic records
+
+#### 📱 **Modern Mobile UI/UX**
+- Material Design 3 implementation
+- Responsive layouts for all screen sizes
+- Intuitive swipe actions and gestures
+- Dark/light theme support
+- Accessibility features compliance
+
+### 🤖 AI Assistant Module
+-  **Multi-conversation support** - Create and manage multiple chat sessions
+- **Persistent chat history** - All conversations saved to MySQL database
+- **Auto-generated titles** - AI automatically names your chats based on content
+- **Manual title editing** - Rename chats anytime with tap-to-edit
+
+#### 💬 **Conversational Intelligence**
+- **Multi-conversation Management** - Create unlimited chat sessions
+- **Persistent History** - All conversations stored in cloud database
+- **Auto-generated Titles** - AI automatically names chats based on content
+- **Manual Title Editing** - Rename chats anytime with intuitive interface
+- **Context Awareness** - AI maintains conversation context across sessions
+
+#### 🖼️ **Multi-modal Image Understanding**
+- **Bulk Image Upload** - Send multiple images in a single message
+- **Advanced Image Analysis** - Describe, analyze, solve problems from images
+- **Thumbnail Previews** - See uploaded images before sending
+- **Full-screen Zoom** - Tap images for detailed viewing with pinch-to-zoom
+- **Image Format Support** - JPG, PNG, GIF, WebP compatibility
+
+#### 🔬 **Real-time Web Research**
+- **Live Web Search** - AI searches current information using Tavily API
+- **Source Citations** - Every researched answer includes clickable references
+- **Beyond Training Data** - Access to real-time information past AI's knowledge cutoff
+- **Research Mode Toggle** - Enable/disable based on query requirements
+- **Fact Verification** - Cross-reference multiple sources for accuracy
+
+#### 🧩 **Intelligent Response System**
+- **Markdown Rendering** - Rich text with **bold**, *italic*, lists, `code blocks`
+- **Structured Responses** - Organized answers for complex queries
+- **Code Syntax Highlighting** - Programming language support
+- **Mathematical Notation** - LaTeX rendering for equations
+- **Optimistic UI Updates** - Instant feedback while processing
+
+---
+
+## 🏗️ Cloud Architecture
+
+```mermaid
+graph TB
+    A[Flutter Mobile App] --> B[Google Cloud Run API]
+    B --> C[Google Cloud SQL MySQL]
+    B --> D[OpenAI GPT-4o-mini API]
+    B --> E[Tavily Search API]
+    B --> F[Cloud Storage Bucket]
+    
+    subgraph "Google Cloud Platform"
+        B
+        C
+        F
+    end
+    
+    subgraph "External APIs"
+        D
+        E
+    end
+    
+    G[Docker Container Registry] --> B
+    H[Cloud Build] --> G
+```
+
+### 🔄 **Deployment Pipeline**
+1. **Source Code** → Google Cloud Build
+2. **Docker Build** → Container Registry
+3. **Deploy** → Cloud Run Service
+4. **Database** → Cloud SQL Instance
+5. **Static Assets** → Cloud Storage
+
+### 🌐 **Global Infrastructure**
+- **Multi-region Support** - Deploy in us-central1, europe-west1, or asia-northeast1
+- **Auto-scaling** - Scales from 0 to 1000+ concurrent users
+- **Load Balancing** - Built-in Google Cloud Load Balancer
+- **CDN Integration** - Google Cloud CDN for static assets
 
 ---
 
 ## 🛠️ Tech Stack
 
-<table>
-<tr>
-<td width="50%">
+### Frontend (Flutter)
+```yaml
+dependencies:
+  flutter: sdk: flutter
+  http: ^1.1.0                    # API communication
+  shared_preferences: ^2.2.2      # Local token storage
+  file_picker: ^8.0.0            # Image/file selection
+  flutter_markdown: ^0.7.4       # Rich text rendering
+  url_launcher: ^6.2.0           # Open research sources
+  intl: ^0.19.0                  # Internationalization
+  http_parser: ^4.0.2            # MIME type handling
+```
 
-### Frontend
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
+### Backend (Node.js)
+```json
+{
+  "dependencies": {
+    "express": "^4.18.2",         
+    "mysql2": "^3.6.0",           
+    "openai": "^4.20.0",          
+    "jsonwebtoken": "^9.0.2",     
+    "multer": "^1.4.5-lts.1",     
+    "dotenv": "^16.3.1",          
+    "cors": "^2.8.5",             
+    "axios": "^1.6.0",            
+    "bcryptjs": "^2.4.3"          
+  }
+}
+```
 
-- `http` - API communication
-- `shared_preferences` - Local token storage
-- `file_picker` - Image/file selection
-- `url_launcher` - Open research sources
-- `flutter_markdown` - Rich text rendering
-- `http_parser` - MIME type handling
-
-</td>
-<td width="50%">
-
-### Backend
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-
-- `express` - REST API server
-- `mysql2` - Database connection
-- `openai` - GPT-4o-mini integration
-- `jsonwebtoken` - Authentication
-- `multer` - File upload handling
-
-</td>
-</tr>
-</table>
+### Cloud Infrastructure
+- **🗄️ Database**: Google Cloud SQL (MySQL 8.0)
+- **🚀 Hosting**: Google Cloud Run (Serverless)
+- **🐳 Containerization**: Docker with Alpine Linux
+- **🔐 Security**: HTTPS/SSL, VPC, IAM roles
+- **📊 Monitoring**: Cloud Logging, Cloud Monitoring
+- **💾 Storage**: Cloud Storage for file uploads
 
 ---
 
 ## 📁 Project Structure
+
 ```
-study_buddy/
+study_buddy_cloud/
 ├── frontend/ (Flutter)
 │   ├── lib/
 │   │   ├── screens/
-│   │   │   ├── chat_list_screen.dart    # Chat list with create/delete
-│   │   │   └── ai_tutor_screen.dart     # Chat conversation UI
-│   │   └── services/
-│   │       └── api_service.dart         # HTTP client & API methods
+│   │   │   ├── login_screen.dart           # Authentication UI
+│   │   │   ├── course_screen.dart          # Course management
+│   │   │   ├── assignment_screen.dart      # Assignment tracking
+│   │   │   ├── study_session_screen.dart   # Session logging
+│   │   │   ├── grade_calculator_screen.dart # Grade analytics
+│   │   │   ├── chat_list_screen.dart       # AI chat list
+│   │   │   └── ai_tutor_screen.dart        # AI conversation
+│   │   ├── services/
+│   │   │   └── api_service.dart            # Cloud API client
+│   │   ├── models/                         # Data models
+│   │   └── widgets/                        # Reusable UI components
 │   └── pubspec.yaml
 │
-└── backend/ (Node.js)
-    ├── src/
-    │   ├── config/
-    │   │   └── db.js                    # MySQL connection
-    │   ├── controllers/
-    │   │   ├── conversationController.js # Chat CRUD + auto-title
-    │   │   ├── messageController.js     # Messages + AI logic
-    │   │   └── uploadController.js      # File uploads
-    │   ├── routes/
-    │   │   └── aiRoutes.js              # API route definitions
-    │   └── middleware/
-    │       └── authMiddleware.js        # JWT verification
-    └── package.json
+├── backend/ (Node.js)
+│   ├── src/
+│   │   ├── config/
+│   │   │   └── db.js                       # Cloud SQL connection
+│   │   ├── controllers/
+│   │   │   ├── authController.js           # JWT authentication
+│   │   │   ├── courseController.js         # Course CRUD operations
+│   │   │   ├── assignmentController.js     # Assignment management
+│   │   │   ├── gradeController.js          # Grade calculations
+│   │   │   ├── studySessionController.js   # Session tracking
+│   │   │   ├── conversationController.js   # AI chat management
+│   │   │   ├── messageController.js        # AI message processing
+│   │   │   └── uploadController.js         # File upload handling
+│   │   ├── routes/
+│   │   │   ├── authRoutes.js              # Authentication endpoints
+│   │   │   ├── courseRoutes.js            # Course API routes
+│   │   │   ├── assignmentRoutes.js        # Assignment API routes
+│   │   │   ├── gradeRoutes.js             # Grade API routes
+│   │   │   ├── studySessionRoutes.js      # Session API routes
+│   │   │   └── aiRoutes.js                # AI chat endpoints
+│   │   ├── middleware/
+│   │   │   └── authMiddleware.js          # JWT verification
+│   │   ├── services/
+│   │   │   ├── openaiService.js           # OpenAI integration
+│   │   │   └── tavilyService.js           # Web search service
+│   │   └── server.js                      # Express app entry point
+│   ├── uploads/                           # File storage directory
+│   ├── Dockerfile                         # Container configuration
+│   ├── .dockerignore                      # Docker ignore patterns
+│   └── package.json                       # Node.js dependencies
+│
+├── database/
+│   └── schema.sql                         # Complete database schema
+│
+└── deployment/
+    ├── cloudbuild.yaml                    # Google Cloud Build config
+    └── app.yaml                           # App Engine config (optional)
 ```
 
 ---
 
-## 🚀 Setup Instructions
+## 🚀 Deployment Guide
 
 ### Prerequisites
+- Google Cloud Platform account with billing enabled
+- Flutter SDK (3.0+)
+- Node.js (18+)
+- gcloud CLI installed and configured
+- OpenAI API key
+- Tavily API key (for research mode)
 
-- [Flutter SDK](https://flutter.dev/docs/get-started/install) (3.0+)
-- [Node.js](https://nodejs.org/) (18+)
-- [MySQL](https://www.mysql.com/downloads/) (8.0+)
-- [OpenAI API Key](https://platform.openai.com/api-keys)
-- [Tavily API Key](https://tavily.com/) (for research mode)
+### Google Cloud SQL Setup
 
-<details>
-<summary><b>📦 Backend Setup</b></summary>
-
-### 1. Navigate to backend directory
+#### 1. **Create Cloud SQL Instance**
 ```bash
+# Create MySQL 8.0 instance
+gcloud sql instances create study-buddy-db \
+  --database-version=MYSQL_8_0 \
+  --tier=db-f1-micro \
+  --region=us-central1 \
+  --storage-type=SSD \
+  --storage-size=10GB \
+  --backup-start-time=02:00 \
+  --enable-bin-log
+```
+
+#### 2. **Configure Database Access**
+```bash
+# Set root password
+gcloud sql users set-password root \
+  --host=% \
+  --instance=study-buddy-db \
+  --password=YOUR_SECURE_ROOT_PASSWORD
+
+# Create application user
+gcloud sql users create studybuddy \
+  --instance=study-buddy-db \
+  --password=YOUR_APP_PASSWORD
+
+# Create database
+gcloud sql databases create study_buddy \
+  --instance=study-buddy-db
+```
+
+#### 3. **Get Connection Details**
+```bash
+# Get the public IP address
+gcloud sql instances describe study-buddy-db \
+  --format="value(ipAddresses[0].ipAddress)"
+```
+
+#### 4. **Import Database Schema**
+```bash
+# Import the complete schema
+gcloud sql import sql study-buddy-db gs://your-bucket/schema.sql \
+  --database=study_buddy
+```
+
+### Google Cloud Run Deployment
+
+#### 1. **Prepare Backend for Deployment**
+
+Create `Dockerfile` in your backend directory:
+```dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/ ./src/
+
+# Create uploads directory
+RUN mkdir -p uploads/assignments
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Change ownership
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+
+# Expose port
+EXPOSE 8080
+
+# Environment variables
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Start the application
+CMD ["node", "src/server.js"]
+```
+
+Create `.dockerignore`:
+```
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+uploads/*
+!uploads/.gitkeep
+```
+
+#### 2. **Deploy to Cloud Run**
+
+Single-command deployment:
+```bash
+# Navigate to backend directory
 cd study_buddy_backend
+
+# Deploy with environment variables
+gcloud run deploy study-buddy-backend \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --platform managed \
+  --memory 1Gi \
+  --cpu 1 \
+  --min-instances 0 \
+  --max-instances 100 \
+  --set-env-vars \
+DB_HOST=YOUR_CLOUD_SQL_IP,\
+DB_USER=studybuddy,\
+DB_PASS=YOUR_APP_PASSWORD,\
+DB_NAME=study_buddy,\
+DB_PORT=3306,\
+JWT_SECRET=YOUR_JWT_SECRET,\
+OPENAI_API_KEY=YOUR_OPENAI_KEY,\
+TAVILY_API_KEY=YOUR_TAVILY_KEY,\
+NODE_ENV=production
 ```
 
-### 2. Install dependencies
+#### 3. **Get Your Deployed URL**
 ```bash
-npm install
+gcloud run services describe study-buddy-backend \
+  --region us-central1 \
+  --format="value(status.url)"
 ```
 
-### 3. Create `.env` file
-```env
-PORT=3000
-DB_HOST=localhost
-DB_USER=your_mysql_user
-DB_PASSWORD=your_mysql_password
-DB_NAME=study_buddy
-JWT_SECRET=your_jwt_secret_key
-OPENAI_API_KEY=sk-...
-TAVILY_API_KEY=tvly-...
-```
+### Frontend Configuration
 
-### 4. Set up MySQL database
-```sql
-CREATE DATABASE study_buddy;
-USE study_buddy;
-
-CREATE TABLE conversations (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT NOT NULL,
-  title VARCHAR(255) DEFAULT 'New Chat',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  is_archived BOOLEAN DEFAULT FALSE
-);
-
-CREATE TABLE messages (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  conversation_id INT NOT NULL,
-  role ENUM('user', 'assistant') NOT NULL,
-  text TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  attachment_ids JSON,
-  FOREIGN KEY (conversation_id) REFERENCES conversations(id)
-);
-
-CREATE TABLE attachments (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  conversation_id INT NOT NULL,
-  file_path VARCHAR(500) NOT NULL,
-  file_name VARCHAR(255) NOT NULL,
-  mime_type VARCHAR(100),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (conversation_id) REFERENCES conversations(id)
-);
-```
-
-### 5. Start the server
-```bash
-npm start
-```
-
-✅ Server runs on `http://localhost:3000`
-
-</details>
-
-<details>
-<summary><b>📱 Frontend Setup</b></summary>
-
-### 1. Navigate to frontend directory
-```bash
-cd study_buddy_app
-```
-
-### 2. Install dependencies
-```bash
-flutter pub get
-```
-
-### 3. Update base URL (if needed)
-In `lib/services/api_service.dart`:
+Update `lib/services/api_service.dart`:
 ```dart
-final String baseUrl = "http://10.0.2.2:3000/api";  // Android emulator
-// OR
-final String baseUrl = "http://localhost:3000/api";  // iOS simulator
+class ApiService {
+  // Replace with your actual Cloud Run URL
+  static const String _baseUrl = 'https://study-buddy-backend-XXXXXXXXX-uc.a.run.app/api';
+  static const String _baseOrigin = 'https://study-buddy-backend-XXXXXXXXX-uc.a.run.app';
+  
+  // Rest of your implementation stays the same
+}
 ```
 
-### 4. Run the app
+**Deploy your Flutter app:**
 ```bash
+# Navigate to frontend directory
+cd study_buddy_frontend
+
+# Install dependencies
+flutter pub get
+
+# Run the app (works globally now!)
 flutter run
 ```
-
-</details>
 
 ---
 
 ## 🔌 API Endpoints
 
-### Conversations
+### Authentication
 
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/auth/register` | Register new user | ❌ |
+| `POST` | `/api/auth/login` | User login + JWT | ❌ |
+| `POST` | `/api/auth/refresh` | Refresh JWT token | ✅ |
+| `POST` | `/api/auth/logout` | Logout user | ✅ |
+
+### Course Management
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/courses` | List user's courses | ✅ |
+| `POST` | `/api/courses` | Create new course | ✅ |
+| `PUT` | `/api/courses/:id` | Update course | ✅ |
+| `DELETE` | `/api/courses/:id` | Delete course | ✅ |
+
+### Assignment Tracking
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/assignments` | List assignments | ✅ |
+| `POST` | `/api/assignments` | Create assignment | ✅ |
+| `PUT` | `/api/assignments/:id` | Update assignment | ✅ |
+| `DELETE` | `/api/assignments/:id` | Delete assignment | ✅ |
+| `POST` | `/api/assignments/:id/upload` | Upload assignment file | ✅ |
+
+### Study Sessions
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/sessions` | List study sessions | ✅ |
+| `POST` | `/api/sessions` | Create/start session | ✅ |
+| `PUT` | `/api/sessions/:id` | Update/end session | ✅ |
+| `DELETE` | `/api/sessions/:id` | Delete session | ✅ |
+
+### Grade Calculator
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/grades/calculate` | Calculate current grade | ✅ |
+| `POST` | `/api/grades/what-if` | What-if scenario analysis | ✅ |
+| `GET` | `/api/grades/trends` | Grade trends over time | ✅ |
+
+### AI Assistant
+
+#### Conversations
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | `POST` | `/api/ai/chats` | Create new chat | ✅ |
@@ -238,15 +524,13 @@ flutter run
 | `POST` | `/api/ai/chats/:id/archive` | Archive/delete chat | ✅ |
 | `POST` | `/api/ai/chats/:id/title` | Auto-generate or set title | ✅ |
 
-### Messages
-
+#### Messages
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | `GET` | `/api/ai/chats/:id/messages` | Get chat messages | ✅ |
 | `POST` | `/api/ai/chats/:id/messages` | Send message (text/images) | ✅ |
 
-### Uploads
-
+#### File Uploads
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | `POST` | `/api/ai/uploads` | Upload image/file | ✅ |
@@ -255,374 +539,621 @@ flutter run
 
 ---
 
-## 📖 Usage Guide
-
-<details>
-<summary><b>💬 Creating a Chat</b></summary>
-
-1. Tap the **+** button (FAB or AppBar)
-2. Chat appears immediately with "New Chat" title
-3. Start sending messages
-4. Title auto-generates after first message
-
-</details>
-
-<details>
-<summary><b>✉️ Sending a Message</b></summary>
-
-1. Type your question in the text field
-2. **(Optional)** Tap 📎 to attach images
-3. Tap **Send** button
-4. AI responds with formatted text
-
-</details>
-
-<details>
-<summary><b>🔬 Using Research Mode</b></summary>
-
-1. Tap the 🔬 **science icon** in the AppBar
-2. Icon turns **yellow** when enabled
-3. Ask questions requiring current information
-4. AI searches the web and provides clickable sources
-
-> **Note:** Research mode uses web search credits. Enable only when you need real-time data.
-
-</details>
-
-<details>
-<summary><b>🖼️ Uploading Images</b></summary>
-
-1. Tap the 📎 **attachment icon**
-2. Select one or multiple images
-3. Preview appears below text field
-4. Tap **X** to remove individual images
-5. Send with or without text
-6. AI analyzes images and responds
-
-**Supported formats:** JPG, PNG, GIF, WebP
-
-</details>
-
-<details>
-<summary><b>✏️ Editing Chat Title</b></summary>
-
-1. Tap the **chat title** in the AppBar
-2. Enter new title in dialog
-3. Tap **Save**
-4. Title updates immediately
-
-</details>
-
----
-
 ## 🗄️ Database Schema
 
-### `conversations` Table
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INT (PK) | Auto-incrementing chat ID |
-| `user_id` | INT (FK) | Owner of the chat |
-| `title` | VARCHAR(255) | Chat title |
-| `created_at` | DATETIME | Creation timestamp |
-| `updated_at` | DATETIME | Last update timestamp |
-| `is_archived` | BOOLEAN | Soft delete flag |
+### Core Tables
 
-### `messages` Table
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INT (PK) | Auto-incrementing message ID |
-| `conversation_id` | INT (FK) | Parent chat |
-| `role` | ENUM | 'user' or 'assistant' |
-| `text` | TEXT | Message content |
-| `created_at` | DATETIME | Sent timestamp |
-| `attachment_ids` | JSON | Array of attachment IDs |
+#### `users`
+```sql
+CREATE TABLE users (
+  user_id INT PRIMARY KEY AUTO_INCREMENT,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  academic_level ENUM('undergraduate', 'graduate', 'postgraduate') DEFAULT 'undergraduate',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT TRUE
+);
+```
 
-### `attachments` Table
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INT (PK) | Auto-incrementing attachment ID |
-| `conversation_id` | INT (FK) | Parent chat |
-| `file_path` | VARCHAR(500) | Server file location |
-| `file_name` | VARCHAR(255) | Original filename |
-| `mime_type` | VARCHAR(100) | File type |
-| `created_at` | DATETIME | Upload timestamp |
+#### `courses`
+```sql
+CREATE TABLE courses (
+  course_id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  course_name VARCHAR(255) NOT NULL,
+  course_code VARCHAR(50),
+  instructor VARCHAR(255),
+  semester VARCHAR(100),
+  credits INT DEFAULT 3,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+```
+
+#### `assignments`
+```sql
+CREATE TABLE assignments (
+  assignment_id INT PRIMARY KEY AUTO_INCREMENT,
+  course_id INT NOT NULL,
+  user_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  priority ENUM('low', 'medium', 'high', 'critical') DEFAULT 'medium',
+  status ENUM('not_started', 'in_progress', 'completed') DEFAULT 'not_started',
+  due_date DATETIME,
+  file_path VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+```
+
+### AI Chat Tables
+
+#### `conversations`
+```sql
+CREATE TABLE conversations (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  title VARCHAR(120) DEFAULT NULL,
+  openai_thread_id VARCHAR(128) UNIQUE,
+  archived TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  is_archived TINYINT(1) DEFAULT 0,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+```
+
+#### `messages`
+```sql
+CREATE TABLE messages (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  conversation_id BIGINT UNSIGNED NOT NULL,
+  role ENUM('user', 'assistant', 'system') NOT NULL,
+  text MEDIUMTEXT NOT NULL,
+  openai_message_id VARCHAR(128),
+  token_count INT UNSIGNED,
+  sources JSON,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+);
+```
+
+#### `attachments`
+```sql
+CREATE TABLE attachments (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  conversation_id BIGINT UNSIGNED NOT NULL,
+  user_id INT NOT NULL,
+  message_id BIGINT UNSIGNED,
+  file_path VARCHAR(500) NOT NULL,
+  file_name VARCHAR(255) NOT NULL,
+  mime_type VARCHAR(100),
+  file_size BIGINT UNSIGNED,
+  kind ENUM('image', 'document', 'assignment') DEFAULT 'image',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
+);
+```
 
 ---
 
-## 🔑 Key Implementation Details
+## 🧭 Usage Guide
 
-<details>
-<summary><b>🔐 Authentication Flow</b></summary>
+### Getting Started
 
-1. User logs in → Backend returns JWT token
-2. Token stored in `SharedPreferences`
-3. `ApiService.loadAuthToken()` loads token on app start
-4. Token sent in `Authorization: Bearer <token>` header
-5. Backend `verifyToken` middleware validates all AI requests
+1. **User Registration**
+   - Launch the app
+   - Tap "Create Account"
+   - Fill in your details (email, password, name, academic level)
+   - Verify email if required
+   - Login automatically
 
-</details>
+2. **Managing Assignments**
+   - Select a course or go to "Assignments" tab
+   - Tap "Add Assignment"
+   - Set priority, due date, and description
+   - Upload files if needed
+   - Track progress with status updates
 
-<details>
-<summary><b>⚡ Optimistic UI Updates</b></summary>
+### AI Assistant Features
 
-1. User taps "Create Chat" → Chat appears instantly with negative temp ID
-2. Backend creates real chat → Returns real ID
-3. Frontend polls `listChats()` to find new chat
-4. Replaces temp ID with real ID
-5. Spinner disappears, chat is ready
+#### Creating AI Chats
+1. Navigate to "AI Tutor" tab
+2. Tap the "+" button to create a new chat
+3. Chat appears immediately with "New Chat" title
+4. Start asking questions
+5. Title auto-generates after the first message
 
-**Benefit:** Zero perceived latency for users
+#### Using Research Mode
+1. In any chat, tap the 🔬 research icon in the app bar
+2. Icon turns yellow when research mode is enabled
+3. Ask questions requiring current information
+4. AI will search the web and provide sources
+5. Click on source links to read full articles
 
-</details>
+#### Image Analysis
+1. In a chat, tap the 📎 attachment icon
+2. Select one or multiple images from gallery/camera
+3. Preview images appear below the text field
+4. Send with or without additional text
+5. AI analyzes images and provides detailed responses
 
-<details>
-<summary><b>🏷️ Auto-Title Generation</b></summary>
+#### Managing Chat History
+- **View All Chats**: Access from the main AI tutor screen
+- **Rename Chats**: Tap the title in the app bar to edit
+- **Delete Chats**: Swipe left on any chat and confirm deletion
+- **Archive Chats**: Long press and select archive option
 
-1. User sends first message
-2. Backend saves message
-3. Backend calls OpenAI: "Generate a 6-word title for this conversation"
-4. OpenAI returns title
-5. Backend updates `conversations.title`
-6. Frontend polls and displays new title
+### Study Session Tracking
 
-**Fallback:** If auto-title fails, chat keeps "New Chat" title
+1. **Start a Session**
+   - Go to "Study Sessions" tab
+   - Tap "Start Session"
+   - Select the course you're studying
+   - Set planned duration (optional)
+   - Tap "Start"
 
-</details>
+2. **During a Session**
+   - Timer shows elapsed time
+   - Add notes about what you're studying
+   - Pause/resume as needed
+   - Upload study materials
 
-<details>
-<summary><b>📤 Image Upload Flow</b></summary>
-```mermaid
-graph LR
-    A[User selects images] --> B[FilePicker]
-    B --> C[Upload to /api/ai/uploads]
-    C --> D[Get attachment IDs]
-    D --> E[Send message with attachmentIds]
-    E --> F[AI analyzes images]
-    F --> G[Display response]
-```
+3. **End a Session**
+   - Tap "End Session"
 
-**MIME Type Detection:**
-- `.jpg` / `.jpeg` → `image/jpeg`
-- `.png` → `image/png`
-- `.gif` → `image/gif`
-- `.webp` → `image/webp`
+### Grade Calculator
 
-</details>
+1. **Set Up Grade Categories**
+   - Navigate to a course
+   - Tap "Grades" tab
+   - Add categories (exams, homework, participation, etc.)
+   - Set weights for each category
+
+2. **Input Grades**
+   - Select a category
+   - Add individual grade items
+   - Enter scores as percentages or points
+   - View real-time GPA updates
+
+3. **What-If Analysis**
+   - Tap "What-If" mode
+   - Adjust potential future grades
+   - See impact on final grade
+   - Plan required scores for target GPA
+
+---
+
+## 💰 Cost Analysis
+
+### Monthly Operational Costs
+
+#### **Development/Testing (Minimal Usage)**
+- **Cloud SQL (db-f1-micro)**: $7-10/month
+- **Cloud Run**: $0-2/month (within free tier)
+- **Cloud Storage**: $0-1/month
+- **OpenAI API**: $5-15/month (depending on usage)
+- **Tavily API**: $0-5/month (500 free searches)
+- **Total**: **$12-33/month**
+
+#### **Production (100-500 Users)**
+- **Cloud SQL (db-n1-standard-1)**: $50-60/month
+- **Cloud Run**: $10-25/month
+- **Cloud Storage**: $2-5/month
+- **OpenAI API**: $50-150/month
+- **Tavily API**: $20-50/month
+- **Total**: **$132-290/month**
+
+#### **Scale (1000+ Users)**
+- **Cloud SQL (db-n1-standard-2)**: $100-120/month
+- **Cloud Run**: $50-100/month
+- **Cloud Storage**: $5-15/month
+- **OpenAI API**: $200-500/month
+- **Tavily API**: $100-200/month
+- **Total**: **$455-935/month**
+
+### Cost Optimization Strategies
+
+1. **Use Free Tiers**
+   - Cloud Run: 2M requests/month free
+   - Cloud SQL: Consider managed instance scheduling
+   - Cloud Storage: 5GB free storage
+
+2. **Optimize AI Usage**
+   - Implement response caching
+   - Use OpenAI's cheaper models for simple queries
+   - Enable research mode only when needed
+
+3. **Database Optimization**
+   - Start with smaller instance, scale up as needed
+   - Implement connection pooling
+   - Use read replicas for analytics queries
+
+4. **Monitor and Alert**
+   - Set up billing alerts
+   - Monitor API usage patterns
+   - Implement rate limiting for expensive operations
 
 ---
 
 ## 🐛 Troubleshooting
 
-<details>
-<summary><b>❌ 401 Unauthorized Errors</b></summary>
+### Authentication Issues
 
-**Symptoms:**
+#### **401 Unauthorized Errors**
 ```
-📥 listChats status: 401
-📥 listChats body: {"error":"Access denied"}
+📥 Error: Access denied (401)
 ```
 
-**Causes:**
-- Auth token not loaded
-- Token expired
+**Common Causes:**
+- JWT token expired or missing
+- Auth token not loaded on app startup
 - Wrong SharedPreferences key
 
-**Fixes:**
-1. Ensure `ApiService.loadAuthToken()` is called in `main.dart`:
+**Solutions:**
 ```dart
-   void main() async {
-     WidgetsFlutterBinding.ensureInitialized();
-     await ApiService.loadAuthToken();  // ← Add this
-     runApp(MyApp());
-   }
+// Ensure token is loaded in main.dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ApiService.loadAuthToken(); // ← Critical
+  runApp(MyApp());
+}
+
+// Debug token loading
+print('🔑 Token loaded: ${ApiService.authToken != null}');
+
+// Check SharedPreferences key
+final prefs = await SharedPreferences.getInstance();
+final token = prefs.getString('authToken'); // Must be 'authToken'
 ```
 
-2. Check token is loaded:
-```dart
-   print('🔑 Token: ${ApiService.authToken}');
+### Database Connection Issues
+
+#### **Cloud SQL Connection Timeouts**
+```
+Error: connect ETIMEDOUT
 ```
 
-3. Verify SharedPreferences key is `'authToken'` (not `'auth_token'`)
+**Solutions:**
+1. **Check Authorized Networks**
+   ```bash
+   gcloud sql instances patch study-buddy-db \
+     --authorized-networks=0.0.0.0/0
+   ```
 
-</details>
+2. **Verify Environment Variables**
+   ```bash
+   gcloud run services describe study-buddy-backend \
+     --region=us-central1 \
+     --format="export"
+   ```
 
-<details>
-<summary><b>🖼️ Images Not Displaying</b></summary>
+3. **Test Direct Connection**
+   ```bash
+   mysql -h YOUR_CLOUD_SQL_IP -u studybuddy -p study_buddy
+   ```
 
-**Symptoms:**
-- Gray boxes with broken image icon
-- "No data" error
+### Image Upload Issues
 
-**Causes:**
-- Auth token not passed to `getAttachment`
-- Wrong attachment ID
-- File deleted from server
-
-**Fixes:**
-1. Update `getAttachment` to use static `authToken`:
-```dart
-   if (authToken != null) 'Authorization': 'Bearer $authToken'
-```
-
-2. Check attachment IDs in database:
-```sql
-   SELECT * FROM attachments WHERE conversation_id = 123;
-```
-
-</details>
-
-<details>
-<summary><b>📁 File Upload Fails (application/octet-stream)</b></summary>
-
-**Symptoms:**
+#### **File Upload Failures (application/octet-stream)**
 ```
 Error: File type application/octet-stream not supported
 ```
 
-**Cause:**
-- MIME type not set correctly in multipart upload
-
-**Fix:**
-Add `http_parser` and set content type:
+**Solution:**
 ```dart
+// Add http_parser dependency in pubspec.yaml
+dependencies:
+  http_parser: ^4.0.2
+
+// Fix MIME type detection
 import 'package:http_parser/http_parser.dart';
 
 request.files.add(
   await http.MultipartFile.fromPath(
     'file',
     filePath,
-    contentType: MediaType.parse('image/jpeg'),  // ← Explicit type
+    contentType: MediaType.parse('image/jpeg'), // Explicit MIME type
   ),
 );
 ```
 
-</details>
-
-<details>
-<summary><b>🔌 Backend Not Receiving Requests</b></summary>
-
-**Symptoms:**
-- No logs in backend console
-- Timeout errors in Flutter
-
-**Causes:**
-- Wrong base URL for emulator
-- Backend not running
-- Firewall blocking
-
-**Fixes:**
-
-| Platform | Correct Base URL |
-|----------|------------------|
-| Android Emulator | `http://10.0.2.2:3000/api` |
-| iOS Simulator | `http://localhost:3000/api` |
-| Physical Device | `http://YOUR_IP:3000/api` |
-
-**Verify backend is running:**
-```bash
-curl http://localhost:3000/api/ai/chats
+#### **Images Not Displaying in Chat**
+```
+Gray boxes with broken image icons
 ```
 
-</details>
+**Solutions:**
+1. **Ensure Auth Headers in Image Requests**
+   ```dart
+   if (authToken != null) 'Authorization': 'Bearer $authToken'
+   ```
+
+2. **Check Attachment URLs**
+   ```dart
+   // Build proper attachment URLs
+   String buildAttachmentUrl(String relativePath) {
+     return '$baseOrigin$relativePath';
+   }
+   ```
+
+### AI Chat Issues
+
+#### **Messages Not Sending**
+```
+Spinner keeps loading indefinitely
+```
+
+**Common Causes:**
+- OpenAI API key invalid or expired
+- Rate limiting exceeded
+- Research mode enabled without Tavily API key
+
+**Solutions:**
+1. **Verify API Keys**
+   ```bash
+   # Test OpenAI key
+   curl https://api.openai.com/v1/models \
+     -H "Authorization: Bearer YOUR_OPENAI_KEY"
+   
+   # Test Tavily key
+   curl -X POST https://api.tavily.com/search \
+     -H "Content-Type: application/json" \
+     -d '{"api_key":"YOUR_TAVILY_KEY","query":"test"}'
+   ```
+
+2. **Check Cloud Run Logs**
+   ```bash
+   gcloud run logs read study-buddy-backend --limit=50
+   ```
+
+3. **Disable Research Mode Temporarily**
+   ```dart
+   // In ai_tutor_screen.dart
+   bool researchMode = false; // Force disable for debugging
+   ```
+
+### Deployment Issues
+
+#### **Cloud Run Container Failed to Start**
+```
+ERROR: Container failed to start and listen on PORT=8080
+```
+
+**Solutions:**
+1. **Fix server.js Port Configuration**
+   ```javascript
+   const PORT = process.env.PORT || 8080; // Must use 8080 for Cloud Run
+   
+   app.listen(PORT, '0.0.0.0', () => {
+     console.log(`✅ Server running on port ${PORT}`);
+   });
+   ```
+
+2. **Update Dockerfile**
+   ```dockerfile
+   ENV PORT=8080
+   EXPOSE 8080
+   ```
+
+3. **Check Build Logs**
+   ```bash
+   gcloud builds log BUILD_ID --region=us-central1
+   ```
+
+#### **Permission Denied During Build**
+```
+ERROR: Build failed; check build logs for details
+```
+
+**Solution:**
+```bash
+# Grant Cloud Build service account required permissions
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member="serviceAccount:YOUR_PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
+  --role="roles/cloudsql.client"
+```
+
+### Performance Issues
+
+#### **Slow API Responses**
+- **Database**: Upgrade Cloud SQL instance tier
+- **Backend**: Increase Cloud Run CPU allocation
+- **Frontend**: Implement response caching
+
+#### **High Costs**
+- **Monitor Usage**: Set up billing alerts
+- **Optimize Queries**: Use database query optimization
+- **Cache Responses**: Implement Redis for API caching
 
 ---
 
-## 📦 Dependencies
+## 🤝 Contributing
 
-<details>
-<summary><b>Flutter Dependencies</b></summary>
+### Development Setup
 
-Add to `pubspec.yaml`:
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  http: ^1.1.0
-  shared_preferences: ^2.2.2
-  intl: ^0.19.0
-  file_picker: ^8.0.0
-  url_launcher: ^6.2.0
-  flutter_markdown: ^0.7.4
-  http_parser: ^4.0.2
-```
+1. **Fork the Repository**
+   ```bash
+   git fork https://github.com/your-username/study-buddy-cloud
+   cd study-buddy-cloud
+   ```
 
-Install:
-```bash
-flutter pub get
-```
+2. **Set Up Local Environment**
+   ```bash
+   # Install Flutter dependencies
+   cd frontend
+   flutter pub get
+   
+   # Install Node.js dependencies
+   cd ../backend
+   npm install
+   ```
 
-</details>
+3. **Configure Environment Variables**
+   ```bash
+   # Create .env file in backend/
+   cp .env.example .env
+   # Fill in your API keys and database credentials
+   ```
 
-<details>
-<summary><b>Node.js Dependencies</b></summary>
+4. **Run Tests**
+   ```bash
+   # Frontend tests
+   cd frontend
+   flutter test
+   
+   # Backend tests
+   cd ../backend
+   npm test
+   ```
 
-Add to `package.json`:
-```json
-{
-  "dependencies": {
-    "express": "^4.18.2",
-    "mysql2": "^3.6.0",
-    "openai": "^4.20.0",
-    "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.1",
-    "dotenv": "^16.3.1",
-    "cors": "^2.8.5",
-    "axios": "^1.6.0"
-  }
-}
-```
+### Contributing Guidelines
 
-Install:
-```bash
-npm install
-```
+1. **Create Feature Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-</details>
+2. **Follow Code Standards**
+   - **Dart**: Use `flutter analyze` and `dart format`
+   - **Node.js**: Use ESLint and Prettier
+   - **Database**: Follow naming conventions in schema.sql
 
----
+3. **Write Tests**
+   - Unit tests for business logic
+   - Widget tests for UI components
+   - Integration tests for API endpoints
 
+4. **Update Documentation**
+   - Add new API endpoints to this README
+   - Update environment variable documentation
+   - Include migration scripts for database changes
 
+5. **Submit Pull Request**
+   - Describe changes clearly
+   - Include screenshots for UI changes
+   - Reference related issues
 
+### Code Review Process
+
+1. **Automated Checks**
+   - GitHub Actions run tests automatically
+   - Code coverage must be >80%
+   - All linting checks must pass
+
+2. **Manual Review**
+   - At least one team member review required
+   - Security review for auth-related changes
+   - Performance review for database changes
+
+3. **Deployment**
+   - Merge to `main` triggers staging deployment
+   - Manual approval required for production
 
 ---
 
 ## 📄 License
 
-This project is part of the Study Buddy application.  
-© 2024 Study Buddy Team. All rights reserved.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+```
+MIT License
+
+Copyright (c) 2024 Study Buddy Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
 ---
 
 ## 🙏 Acknowledgments
 
-- [OpenAI](https://openai.com/) - GPT-4o-mini API
-- [Tavily](https://tavily.com/) - Web search API
-- [Flutter](https://flutter.dev/) - Mobile framework
-- [Express.js](https://expressjs.com/) - Backend framework
-- [MySQL](https://www.mysql.com/) - Database
+### Technology Partners
+- **[Google Cloud Platform](https://cloud.google.com)** - Cloud infrastructure and hosting
+- **[OpenAI](https://openai.com)** - GPT-4o-mini API for AI tutoring
+- **[Tavily](https://tavily.com)** - Web search API for research mode
+- **[Flutter](https://flutter.dev)** - Cross-platform mobile framework
+- **[Express.js](https://expressjs.com)** - Backend web framework
+- **[MySQL](https://mysql.com)** - Relational database management
+
+### Development Tools
+- **Docker** - Containerization platform
+- **GitHub Actions** - CI/CD pipeline
+- **Postman** - API testing and documentation
+- **DBeaver** - Database administration
+- **Visual Studio Code** - Primary development environment
+
+### Special Thanks
+- Study Buddy development team for the original local version
+- Beta testers who helped identify critical issues
+- Open source community for excellent libraries and tools
+- Academic advisors for feature guidance and requirements
 
 ---
 
-## 📞 Support
+## 📞 Support & Contact
 
-**Having issues?** Check the [Troubleshooting](#-troubleshooting) section first.
+### Getting Help
+1. **Check this README** - Most common issues are covered in troubleshooting
+2. **Search Issues** - Look through existing GitHub issues
+3. **Create New Issue** - If you can't find a solution
 
-**Still stuck?** Open an issue on GitHub with:
-- Clear description of the problem
-- Steps to reproduce
-- Error messages/logs
-- Screenshots (if applicable)
+### Issue Reporting Guidelines
+When reporting issues, please include:
+- **Clear Description** - What you expected vs what happened
+- **Steps to Reproduce** - Detailed steps to recreate the issue
+- **Environment Info** - Flutter version, device type, OS version
+- **Screenshots** - Visual evidence of UI issues
+- **Logs** - Relevant error messages or console output
+
+### Feature Requests
+- Use GitHub Issues with `enhancement` label
+- Describe the use case and benefits
+- Include mockups or examples if applicable
+- Consider implementation complexity
+
+### Security Issues
+For security vulnerabilities, please email: **security@studybuddy.com**
+- Do not create public GitHub issues for security problems
+- Include detailed information about the vulnerability
+- Allow reasonable time for investigation and patching
 
 ---
 
 <div align="center">
 
-**Last Updated:** November 15, 2024  
-**Version:** 1.0.0 (AI Assistant Feature)
+**🚀 Study Buddy Cloud - Deployed on Google Cloud Platform**
+
+**Last Updated**: December 2, 2024  
+**Version**: 2.0.0 (Cloud Branch)  
+**Backend URL**: `https://study-buddy-backend-851589529788.us-central1.run.app`
 
 Made with ❤️ by the Study Buddy Team
 
+[![Deploy to Google Cloud](https://img.shields.io/badge/Deploy%20to-Google%20Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)](https://cloud.google.com/run)
+
 </div>
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
