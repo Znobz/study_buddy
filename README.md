@@ -64,7 +64,14 @@ Study Buddy Cloud is a complete evolution of the original Study Buddy app, now d
 - 🔐 Secure JWT authentication
 - ☁️ Cloud-native architecture with 99.9% uptime
 
----
+The app integrates:
+- Course management
+- Assignment tracking
+- Study session logging
+- Grade calculation & what-if analysis
+- A multimodal AI tutor capable of research and image understanding
+
+Built using Flutter, Node.js, and MySQL, Study Buddy is designed for performance, reliability, and ease of use.
 
 ## ✨ Features
 
@@ -143,7 +150,9 @@ Study Buddy Cloud is a complete evolution of the original Study Buddy app, now d
 - **Mathematical Notation** - LaTeX rendering for equations
 - **Optimistic UI Updates** - Instant feedback while processing
 
----
+#### ⏱️ Study Sessions
+- Track start/end times
+- Planned and actual durations
 
 ## 🏗️ Cloud Architecture
 
@@ -225,7 +234,27 @@ dependencies:
 - **📊 Monitoring**: Cloud Logging, Cloud Monitoring
 - **💾 Storage**: Cloud Storage for file uploads
 
----
+### Frontend (Flutter)
+- Dart
+- http
+- shared_preferences
+- file_picker
+- flutter_markdown
+- url_launcher
+- http_parser
+
+### Backend (Node.js / Express)
+- express
+- mysql2
+- jsonwebtoken
+- multer
+- openai (GPT-4o-mini)
+- tavily (web research)
+- dotenv
+- cors
+
+### Database
+- MySQL 8.0+
 
 ## 📁 Project Structure
 
@@ -348,6 +377,7 @@ cd path/to/extracted/study_buddy_cloud/frontend
 
 #### Step 4: Install Flutter Dependencies
 ```bash
+cd frontend
 flutter pub get
 ```
 **Expected output:**
@@ -525,7 +555,11 @@ If the app doesn't work after following these **exact steps**:
 | `GET` | `/api/ai/uploads/:id` | Retrieve attachment | ✅ |
 | `DELETE` | `/api/ai/uploads/:id` | Delete attachment | ✅ |
 
----
+| Method | Endpoint |
+|--------|----------|
+| POST | `/api/ai/uploads` |
+| GET | `/api/ai/uploads/:id` |
+| DELETE | `/api/ai/uploads/:id` |
 
 ## 🗄️ Database Schema
 
