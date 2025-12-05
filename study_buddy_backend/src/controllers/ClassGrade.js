@@ -56,6 +56,27 @@ class ClassGrade
         return this.courseDict;
     }
 
+    // given the grade you want for the class, this calculates the greade you want for a particular
+    // assignment type to pass the class
+    calcPredGrade(desired_grade, assignType) {
+        let type_sum = 0;
+        let type_len = this.courseDict[assignType].grades.length + 1; // includes grade value we are trying to find
+        let type_w = this.courseDict[assignType].weight;
+        let tempAve = 0;
+        // calculating current average except of the desired assignment type
+        for (let type in this.courseDict) {
+            if (type != assignType) {
+                tempAve += this.getTypeAvg(type) * this.courseDict[type].weight;
+            }
+        }
+        // Calculate current sum of grades in assignment type
+        this.courseDict[assignType].grades.forEach(grade => {
+            type_sum += grade.grade;
+        });
+        // return result of the assignment grade to obtain the value
+        return ((desired_grade - tempAve) / type_w) * type_len - type_sum;
+    }
+
     displayResults() {
         console.log("\n=== GRADE SUMMARY ===");
         console.log(`Class Average: ${this.getGradeAve().toFixed(2)}%`);
@@ -80,6 +101,8 @@ function question(prompt) {
     });
 }
 
+
+//Testing
 async function main() {
     console.log("Welcome to the Class Grade Calculator!\n");
 

@@ -1,4 +1,8 @@
 {
     "cmake.sourceDirectory": "/Users/abdulsalamfadare/Desktop/Study-buddy/study_buddy_app/linux",
+    "files.associations": {
+        "*.wmls": "javascriptlite",
+        "plyconfig.json": "jsonc"
+    }
     "java.configuration.updateBuildConfiguration": "interactive"
 }

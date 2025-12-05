@@ -24,16 +24,12 @@ class AppRoutes {
 
       case '/study':
         return MaterialPageRoute(builder: (_) => const StudySessionScreen());
-
-      case '/ai-chats': // ✅ Chat list screen
+      case '/ai-chats':
         return MaterialPageRoute(builder: (_) => const ChatListScreen());
-
-      case '/ai': // ✅ AI Tutor screen with arguments
-        final args = settings.arguments as Map<String, dynamic>? ?? {};
-        final userId = args['userId'] as int? ?? 1;
+      case '/ai':
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => AiTutorScreen(userId: userId),
+          builder: (_) => const AiTutorScreen(),  // ← FIXED: No userId parameter
         );
 
       case '/register':
