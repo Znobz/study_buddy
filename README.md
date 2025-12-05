@@ -20,7 +20,7 @@
 - [🏗️ Cloud Architecture](#️-cloud-architecture)
 - [🛠️ Tech Stack](#️-tech-stack)
 - [📁 Project Structure](#-project-structure)
-- [🚀 Deployment Guide](#-deployment-guide)
+- [🚀 Setup Guide](#-setup-guide)
   - [Google Cloud SQL Setup](#google-cloud-sql-setup)
   - [Google Cloud Run Deployment](#google-cloud-run-deployment)
   - [Frontend Configuration](#frontend-configuration)
@@ -291,178 +291,169 @@ study_buddy_cloud/
 
 ---
 
-## 🚀 Deployment Guide
+## 🚀 Setup Guide 
+
+### ⚠️ IMPORTANT: No Backend Setup Required
+This app uses a **cloud-based backend** that is already deployed and running. You only need to run the Flutter frontend app.
 
 ### Prerequisites
-- Google Cloud Platform account with billing enabled
-- Flutter SDK (3.0+)
-- Node.js (18+)
-- gcloud CLI installed and configured
-- OpenAI API key
-- Tavily API key (for research mode)
 
-### Google Cloud SQL Setup
+#### 1. **Install Android Studio**
+- Download from: https://developer.android.com/studio
+- During installation, make sure to install:
+  - Android SDK
+  - Android SDK Platform-Tools
+  - Android SDK Build-Tools
+  - Android Virtual Device (AVD)
 
-#### 1. **Create Cloud SQL Instance**
+#### 2. **Install Flutter SDK**
+- Download from: https://docs.flutter.dev/get-started/install
+- **Windows**: Download Flutter SDK ZIP → Extract to `C:\flutter` → Add `C:\flutter\bin` to PATH
+- **macOS**: Download Flutter SDK ZIP → Extract to `/Users/[username]/flutter` → Add to PATH
+- **Linux**: Download Flutter SDK → Extract → Add to PATH
+
+#### 3. **Verify Installation**
+Open terminal/command prompt and run:
 ```bash
-# Create MySQL 8.0 instance
-gcloud sql instances create study-buddy-db \
-  --database-version=MYSQL_8_0 \
-  --tier=db-f1-micro \
-  --region=us-central1 \
-  --storage-type=SSD \
-  --storage-size=10GB \
-  --backup-start-time=02:00 \
-  --enable-bin-log
+flutter doctor
+```
+**Expected output should show:**
+```
+✓ Flutter (Channel stable, 3.x.x)
+✓ Android toolchain - develop for Android devices
+✓ Android Studio (version 2022.x or newer)
 ```
 
-#### 2. **Configure Database Access**
+### 🎯 Running the Study Buddy App
+
+#### Step 1: Extract Project Files
+- **Unzip** the submitted project folder
+- You should see a folder structure like:
+  ```
+  study_buddy_cloud/
+  ├── frontend/          ← This is what you need
+  ├── backend/           ← Ignore this folder
+  └── database/          ← Ignore this folder
+  ```
+
+#### Step 2: Open Terminal/Command Prompt
+- **Windows**: Press `Win + R`, type `cmd`, press Enter
+- **macOS**: Press `Cmd + Space`, type `Terminal`, press Enter
+- **Linux**: Press `Ctrl + Alt + T`
+
+#### Step 3: Navigate to Frontend Directory
 ```bash
-# Set root password
-gcloud sql users set-password root \
-  --host=% \
-  --instance=study-buddy-db \
-  --password=YOUR_SECURE_ROOT_PASSWORD
-
-# Create application user
-gcloud sql users create studybuddy \
-  --instance=study-buddy-db \
-  --password=YOUR_APP_PASSWORD
-
-# Create database
-gcloud sql databases create study_buddy \
-  --instance=study-buddy-db
+cd path/to/extracted/study_buddy_cloud/frontend
 ```
+**Example:**
+- **Windows**: `cd C:\Users\Professor\Downloads\study_buddy_cloud\frontend`
+- **macOS**: `cd /Users/Professor/Downloads/study_buddy_cloud/frontend`
 
-#### 3. **Get Connection Details**
+#### Step 4: Install Flutter Dependencies
 ```bash
-# Get the public IP address
-gcloud sql instances describe study-buddy-db \
-  --format="value(ipAddresses[0].ipAddress)"
-```
-
-#### 4. **Import Database Schema**
-```bash
-# Import the complete schema
-gcloud sql import sql study-buddy-db gs://your-bucket/schema.sql \
-  --database=study_buddy
-```
-
-### Google Cloud Run Deployment
-
-#### 1. **Prepare Backend for Deployment**
-
-Create `Dockerfile` in your backend directory:
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy package files first for better caching
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy source code
-COPY src/ ./src/
-
-# Create uploads directory
-RUN mkdir -p uploads/assignments
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
-
-# Change ownership
-RUN chown -R nodejs:nodejs /app
-USER nodejs
-
-# Expose port
-EXPOSE 8080
-
-# Environment variables
-ENV NODE_ENV=production
-ENV PORT=8080
-
-# Start the application
-CMD ["node", "src/server.js"]
-```
-
-Create `.dockerignore`:
-```
-node_modules
-npm-debug.log
-.env
-.git
-.gitignore
-README.md
-Dockerfile
-.dockerignore
-uploads/*
-!uploads/.gitkeep
-```
-
-#### 2. **Deploy to Cloud Run**
-
-Single-command deployment:
-```bash
-# Navigate to backend directory
-cd study_buddy_backend
-
-# Deploy with environment variables
-gcloud run deploy study-buddy-backend \
-  --source . \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --platform managed \
-  --memory 1Gi \
-  --cpu 1 \
-  --min-instances 0 \
-  --max-instances 100 \
-  --set-env-vars \
-DB_HOST=YOUR_CLOUD_SQL_IP,\
-DB_USER=studybuddy,\
-DB_PASS=YOUR_APP_PASSWORD,\
-DB_NAME=study_buddy,\
-DB_PORT=3306,\
-JWT_SECRET=YOUR_JWT_SECRET,\
-OPENAI_API_KEY=YOUR_OPENAI_KEY,\
-TAVILY_API_KEY=YOUR_TAVILY_KEY,\
-NODE_ENV=production
-```
-
-#### 3. **Get Your Deployed URL**
-```bash
-gcloud run services describe study-buddy-backend \
-  --region us-central1 \
-  --format="value(status.url)"
-```
-
-### Frontend Configuration
-
-Update `lib/services/api_service.dart`:
-```dart
-class ApiService {
-  // Replace with your actual Cloud Run URL
-  static const String _baseUrl = 'https://study-buddy-backend-XXXXXXXXX-uc.a.run.app/api';
-  static const String _baseOrigin = 'https://study-buddy-backend-XXXXXXXXX-uc.a.run.app';
-  
-  // Rest of your implementation stays the same
-}
-```
-
-**Deploy your Flutter app:**
-```bash
-# Navigate to frontend directory
-cd study_buddy_frontend
-
-# Install dependencies
 flutter pub get
+```
+**Expected output:**
+```
+Running "flutter pub get" in frontend...
+Resolving dependencies...
+Got dependencies!
+```
 
-# Run the app (works globally now!)
+#### Step 5: Start Android Emulator
+**Option A - Using Android Studio:**
+1. Open Android Studio
+2. Click "More Actions" → "Virtual Device Manager"
+3. Click "Create Device" if no emulator exists
+4. Select any phone (e.g., "Pixel 7") → Next
+5. Select API Level 34 or higher → Download if needed → Next
+6. Click "Finish"
+7. Click the ▶️ Play button to start emulator
+
+**Option B - Using Command Line:**
+```bash
+flutter emulators --launch 
+```
+
+#### Step 6: Run the App
+**Make sure you're still in the `frontend/` directory, then run:**
+```bash
 flutter run
 ```
+
+**Expected behavior:**
+- App will compile and launch on the emulator
+- You'll see the Study Buddy login screen
+- **The app will automatically connect to the cloud backend**
+- All features (registration, login, AI chat, courses) will work
+
+### 🎉 Testing the App
+
+1. **Create Account**: Tap "Register" → Fill in details → Submit
+2. **Login**: Use the credentials you just created
+3. **Test Core Features**:
+   - Add a course in the "Courses" tab
+   - Create an assignment
+   - Start a study session
+   - Try the AI chat feature
+4. **Test AI Features**:
+   - Go to "AI Tutor" tab
+   - Create a new chat
+   - Ask any question (e.g., "Explain photosynthesis")
+   - The AI should respond normally
+
+### ❌ What NOT to Do
+
+- **DO NOT** try to run any backend code
+- **DO NOT** install Node.js or npm
+- **DO NOT** try to set up any databases
+- **DO NOT** modify any configuration files
+- **DO NOT** run commands in the `backend/` folder
+
+### 🆘 Troubleshooting
+
+#### Problem: "Flutter command not found"
+**Solution:** Flutter is not in your PATH. Reinstall Flutter and add to PATH.
+
+#### Problem: "No connected devices"
+**Solution:** Start an Android emulator first (see Step 5).
+
+#### Problem: App shows errors about "network" or "connection"
+**Solution:** This is expected if internet is slow. The app connects to Google Cloud - just wait a moment and try again.
+
+#### Problem: "flutter pub get" fails
+**Solution:** Run `flutter clean` then `flutter pub get` again.
+
+#### Problem: App builds but crashes immediately
+**Solution:** 
+1. Make sure you're using Android SDK API 34 or higher
+2. Try `flutter clean` then `flutter run` again
+3. Check that the emulator has enough memory (4GB+ recommended)
+
+### ✅ Expected Final Result
+
+- ✅ App launches successfully
+- ✅ Can register new user account  
+- ✅ Can login with created credentials
+- ✅ All tabs (Courses, Assignments, Study Sessions, Grades, AI Tutor) are accessible
+- ✅ AI chat responds to questions
+- ✅ Can upload images to AI chat
+- ✅ Can create courses and assignments
+
+**Total setup time: 10-15 minutes (excluding downloads)**
+
+---
+
+### 📞 If You Need Help
+
+If the app doesn't work after following these **exact steps**:
+
+1. **Check your Flutter installation**: Run `flutter doctor -v`
+2. **Check your Android setup**: Make sure Android Studio can create/run emulators
+3. **Try on a different emulator**: Create a new virtual device with higher API level
+4. **Check internet connection**: The app needs internet to connect to the cloud backend
+
+**Remember**: You are only running the **frontend Flutter app**. The backend is already running in Google Cloud and requires no setup from you.
 
 ---
 
