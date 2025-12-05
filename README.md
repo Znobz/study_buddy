@@ -260,7 +260,7 @@ dependencies:
 
 ```
 study_buddy_cloud/
-├── frontend/ (Flutter)
+├── app/ (Flutter)
 │   ├── lib/
 │   │   ├── screens/
 │   │   │   ├── login_screen.dart           # Authentication UI
@@ -326,20 +326,30 @@ This app uses a **cloud-based backend** that is already deployed and running. Yo
 
 #### 1. **Install Android Studio**
 - Download from: https://developer.android.com/studio
-- During installation, make sure to install:
-  - Android SDK
-  - Android SDK Platform-Tools
-  - Android SDK Build-Tools
-  - Android Virtual Device (AVD)
+- **Complete the full installation process** including all default components
 
-#### 2. **Install Flutter SDK**
+#### 2. **Configure Android Studio SDK Tools**
+**After Android Studio installation is complete:**
+
+1. **Open Android Studio**
+2. **Click "Tools" → "SDK Manager"**
+3. **Navigate to "Languages and Frameworks" → "Android SDK"**
+4. **Click on "SDK Tools" tab**
+5. **Install these essential components** (check the boxes and click "Apply"):
+   - ✅ **Android SDK Build-Tools 36.1** (or latest version)
+   - ✅ **Android Emulator**
+   - ✅ **Android Emulator Hypervisor Driver (installer)**
+   - ✅ **Android SDK Platform-Tools**
+6. **Click "OK" to install** and wait for completion
+
+#### 3. **Install Flutter SDK**
 - Download from: https://docs.flutter.dev/get-started/install
 - **Windows**: Download Flutter SDK ZIP → Extract to `C:\flutter` → Add `C:\flutter\bin` to PATH
 - **macOS**: Download Flutter SDK ZIP → Extract to `/Users/[username]/flutter` → Add to PATH
 - **Linux**: Download Flutter SDK → Extract → Add to PATH
 
-#### 3. **Verify Installation**
-Open terminal/command prompt and run:
+#### 4. **Verify Installation**
+Open terminal/command prompt (or use Android Studio's terminal later) and run:
 ```bash
 flutter doctor
 ```
@@ -352,32 +362,42 @@ flutter doctor
 
 ### 🎯 Running the Study Buddy App
 
-#### Step 1: Extract Project Files
-- **Unzip** the submitted project folder
-- You should see a folder structure like:
-  ```
-  study_buddy_cloud/
-  ├── frontend/          ← This is what you need
-  ├── backend/           ← Ignore this folder
-  └── database/          ← Ignore this folder
-  ```
+#### Step 1: Extract and Navigate to Project
+1. **Unzip** the submitted project folder
+2. **Open the extracted `study_buddy_cloud` folder**
+3. **You should see this structure:**
+   ```
+   study_buddy/
+   ├── study_buddy_app/          ← This is what you need
+   ├── study_buddy_backend/           ← Ignore this folder
+   ```
 
-#### Step 2: Open Terminal/Command Prompt
-- **Windows**: Press `Win + R`, type `cmd`, press Enter
-- **macOS**: Press `Cmd + Space`, type `Terminal`, press Enter
-- **Linux**: Press `Ctrl + Alt + T`
+#### Step 2: Open Android Studio and Load Project
+1. **Open Android Studio**
+2. **Click "Open"** (or "Open an Existing Project")
+3. **Navigate to and select** the extracted `study_buddy` folder
+4. **Click "OK"** to open the project
 
-#### Step 3: Navigate to Frontend Directory
+#### Step 3: Open Terminal in Android Studio
+1. **Look at the bottom of Android Studio** for the toolbar
+2. **Click "Terminal"** tab (or press `Alt + F12` on Windows/Linux, `Option + F12` on macOS)
+3. **The terminal will open at the project root** (`study_buddy/`)
+
+#### Step 4: Navigate to Frontend Directory
+**In the Android Studio terminal, run:**
 ```bash
-cd path/to/extracted/study_buddy_cloud/frontend
+cd study_buddy_app
 ```
-**Example:**
-- **Windows**: `cd C:\Users\Professor\Downloads\study_buddy_cloud\frontend`
-- **macOS**: `cd /Users/Professor/Downloads/study_buddy_cloud/frontend`
+**⚠️ Critical:** Make sure you're in the `app` directory, not the root project directory!
 
-#### Step 4: Install Flutter Dependencies
+**Verify you're in the right place** - the Android Studio terminal should show something like:
+```
+your-path/study_buddy/study_buddy_app>
+```
+
+#### Step 5: Install Flutter Dependencies
+**In the Android Studio terminal (make sure you're in `app/` directory), run:**
 ```bash
-cd frontend
 flutter pub get
 ```
 **Expected output:**
@@ -387,98 +407,122 @@ Resolving dependencies...
 Got dependencies!
 ```
 
-#### Step 5: Start Android Emulator
-**Option A - Using Android Studio:**
-1. Open Android Studio
-2. Click "More Actions" → "Virtual Device Manager"
-3. Click "Create Device" if no emulator exists
-4. Select any phone (e.g., "Pixel 7") → Next
-5. Select API Level 34 or higher → Download if needed → Next
-6. Click "Finish"
-7. Click the ▶️ Play button to start emulator
+#### Step 6: Set Up Android Emulator
+**In Android Studio:**
 
-**Option B - Using Command Line:**
-```bash
-flutter emulators --launch 
-```
+1. **Look for "Device Manager" on the right side** of the Android Studio window
+2. **If you see "Medium Phone API 35" in the list:**
+   - ✅ **Skip to Step 7** - you're ready!
+3. **If "Medium Phone API 35" is NOT in the list:**
+   - **Click the "+" (plus) button** in the Device Manager
+   - **Click "Create Virtual Device"**
+   - **In the Virtual Device Configuration window:**
+     - **Left side: Click "Phone"**
+     - **Select "Medium Phone"** from the list
+     - **Click "Next"**
+   - **Choose System Image:**
+     - **Select "VanillaIceCream" system image** (API 35)
+     - **Click "Download"** if not already installed → wait for completion
+     - **Click "Next"**
+   - **Click "Finish"**
 
-#### Step 6: Run the App
-**Make sure you're still in the `frontend/` directory, then run:**
+4. **Select "Medium Phone API 35"** from the Device Manager list
+5. **Click the ▶️ (play) button** to start the emulator
+
+**Wait for the emulator to fully boot** (you'll see the Android home screen)
+
+#### Step 7: Launch the Study Buddy App
+**In the Android Studio terminal (make sure you're still in the `study_buddy_app/` directory), run:**
 ```bash
 flutter run
 ```
 
 **Expected behavior:**
-- App will compile and launch on the emulator
-- You'll see the Study Buddy login screen
-- **The app will automatically connect to the cloud backend**
-- All features (registration, login, AI chat, courses) will work
+- ✅ App compiles successfully (may take 2-3 minutes first time)
+- ✅ App launches on the emulator
+- ✅ You see the Study Buddy login screen
+- ✅ **The app automatically connects to cloud backend**
 
 ### 🎉 Testing the App
 
-1. **Create Account**: Tap "Register" → Fill in details → Submit
+1. **Register New Account**: 
+   - Tap "Create Account"
+   - Fill in email, password, name
+   - Tap "Register"
+   
 2. **Login**: Use the credentials you just created
+
 3. **Test Core Features**:
-   - Add a course in the "Courses" tab
-   - Create an assignment
-   - Start a study session
-   - Try the AI chat feature
-4. **Test AI Features**:
-   - Go to "AI Tutor" tab
-   - Create a new chat
-   - Ask any question (e.g., "Explain photosynthesis")
-   - The AI should respond normally
+   - **Courses Tab**: Add a test course
+   - **Assignments Tab**: Create a sample assignment  
+   - **Study Sessions Tab**: Start and stop a session
+   - **AI Tutor Tab**: Create a chat and ask "Explain photosynthesis"
+
+4. **Verify AI Chat Works**:
+   - AI should respond to your questions
+   - You can upload images and ask about them
+   - Research mode (🔬 icon) searches the web
 
 ### ❌ What NOT to Do
 
-- **DO NOT** try to run any backend code
-- **DO NOT** install Node.js or npm
-- **DO NOT** try to set up any databases
+- **DO NOT** open or run anything in the `backend/` folder
+- **DO NOT** install Node.js, npm, or any server software
+- **DO NOT** try to set up databases or environment variables
 - **DO NOT** modify any configuration files
-- **DO NOT** run commands in the `backend/` folder
+- **DO NOT** run `npm install` or `npm start` commands
 
 ### 🆘 Troubleshooting
 
 #### Problem: "Flutter command not found"
-**Solution:** Flutter is not in your PATH. Reinstall Flutter and add to PATH.
+**Solution:** Flutter is not in your PATH. Reinstall Flutter SDK and ensure it's added to PATH correctly.
 
-#### Problem: "No connected devices"
-**Solution:** Start an Android emulator first (see Step 5).
+#### Problem: "No connected devices" when running `flutter run`
+**Solution:** Start the Android emulator first (Step 6) and make sure it's fully booted.
 
-#### Problem: App shows errors about "network" or "connection"
-**Solution:** This is expected if internet is slow. The app connects to Google Cloud - just wait a moment and try again.
+#### Problem: Emulator won't start
+**Solution:** 
+1. Ensure you have the Android Emulator Hypervisor Driver installed (from Step 2)
+2. Try creating a new virtual device with API 34 instead of 35
+3. Increase emulator RAM to 4GB+ in AVD settings
 
 #### Problem: "flutter pub get" fails
-**Solution:** Run `flutter clean` then `flutter pub get` again.
-
-#### Problem: App builds but crashes immediately
 **Solution:** 
-1. Make sure you're using Android SDK API 34 or higher
-2. Try `flutter clean` then `flutter run` again
+1. Check internet connection
+2. In Android Studio terminal, run `flutter clean` then try `flutter pub get` again
+
+#### Problem: App builds but shows network errors
+**Solution:** This is normal - the app needs internet to connect to Google Cloud. Wait a moment and try the features again.
+
+#### Problem: App crashes or won't start
+**Solution:** 
+1. Ensure you have the Android Emulator Hypervisor Driver installed (from Step 2)
+2. In Android Studio terminal, try `flutter clean` then `flutter run` again
 3. Check that the emulator has enough memory (4GB+ recommended)
 
-### ✅ Expected Final Result
+### ✅ Success Checklist
 
-- ✅ App launches successfully
-- ✅ Can register new user account  
-- ✅ Can login with created credentials
-- ✅ All tabs (Courses, Assignments, Study Sessions, Grades, AI Tutor) are accessible
-- ✅ AI chat responds to questions
-- ✅ Can upload images to AI chat
-- ✅ Can create courses and assignments
+After following these steps, you should have:
 
-**Total setup time: 10-15 minutes (excluding downloads)**
+- ✅ Android Studio with proper SDK tools installed
+- ✅ Flutter SDK installed and working (`flutter doctor` passes)
+- ✅ Android emulator running (Medium Phone API 35)
+- ✅ Study Buddy app launched and showing login screen
+- ✅ Ability to register, login, and use all app features
+- ✅ AI chat responding to questions
+- ✅ All tabs (Courses, Assignments, Study Sessions, Grades, AI Tutor) accessible
+
+**Total setup time: 15-20 minutes (excluding SDK downloads)**
 
 ---
 
-### 📞 If You Need Help
+### 📞 Need Help?
 
-If the app doesn't work after following these **exact steps**:
-
-1. **Check your Flutter installation**: Run `flutter doctor -v`
-2. **Check your Android setup**: Make sure Android Studio can create/run emulators
-3. **Try on a different emulator**: Create a new virtual device with higher API level
-4. **Check internet connection**: The app needs internet to connect to the cloud backend
+If something doesn't work:
+1. **Check each step carefully** - the order matters!
+2. **Make sure you're in the `study_buddy_app/` directory** when running Flutter commands in Android Studio's terminal
+3. **Verify the emulator is fully started** before running `flutter run`
+4. **Check internet connection** - the app needs internet for cloud features
+5. **Use Android Studio's built-in terminal** (not system terminal) for all commands
 
 **Remember**: You are only running the **frontend Flutter app**. The backend is already running in Google Cloud and requires no setup from you.
 
